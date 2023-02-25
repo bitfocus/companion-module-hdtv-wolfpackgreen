@@ -83,7 +83,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 			name: 'Set Output',
 			options: [inputOption, outputOptions],
 			callback: async (action) => {
-				instance.log('debug', JSON.stringify(action))
+				// instance.log('debug', JSON.stringify(action))
 				const input = `${await instance.parseVariablesInString(action.options.id_input as string)}x`
 				if ((action.options.id_output as Array<number>).length !== 0) {
 					let command = ''
@@ -100,9 +100,9 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 			name: 'Select Input',
 			options: [inputOption],
 			callback: async (action) => {
-				instance.log('debug', JSON.stringify(action))
+				// instance.log('debug', JSON.stringify(action))
 				const inputNumber: string = action.options.id_input as string
-				instance.log('debug', inputNumber)
+				// instance.log('debug', inputNumber)
 				if (Object.prototype.hasOwnProperty.call(instance.InputOutput, inputNumber) === false) {
 					instance.LastInput = inputNumber
 					instance.InputOutput[inputNumber] = {
@@ -111,41 +111,41 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 					}
 				}
 
-				instance.log('debug', `LastInput: ${instance.LastInput}`)
-				instance.log('debug', JSON.stringify(instance.InputOutput))
+				// instance.log('debug', `LastInput: ${instance.LastInput}`)
+				// instance.log('debug', JSON.stringify(instance.InputOutput))
 			},
 		},
 		[ActionId.selectOutput]: {
 			name: 'Select Output',
 			options: [outputOption],
 			callback: async (action) => {
-				instance.log('debug', JSON.stringify(action))
+				// instance.log('debug', JSON.stringify(action))
 				const inputNumber: string = instance.LastInput
-				instance.log('debug', inputNumber)
+				// instance.log('debug', inputNumber)
 				const outputNumber: string = action.options.id_output as string
-				instance.log('debug', `outputNumber: ${outputNumber}`)
+				// instance.log('debug', `outputNumber: ${outputNumber}`)
 
 				if (Object.prototype.hasOwnProperty.call(instance.InputOutput, inputNumber)) {
 					const index = instance.InputOutput[inputNumber].output.indexOf(outputNumber)
-					instance.log('debug', `index: ${index}`)
+					// instance.log('debug', `index: ${index}`)
 					if (index === -1) {
 						instance.InputOutput[inputNumber].output.push(outputNumber)
 					}
 				}
 
-				instance.log('debug', JSON.stringify(instance.InputOutput))
+				// instance.log('debug', JSON.stringify(instance.InputOutput))
 			},
 		},
 		[ActionId.applyOutputs]: {
 			name: 'Apply Outputs',
 			options: [],
-			callback: (action): void => {
-				instance.log('debug', `action: ${JSON.stringify(action)}`)
+			callback: (): void => {
+				// instance.log('debug', `action: ${JSON.stringify(action)}`)
 				for (const key in instance.InputOutput) {
 					const input = instance.InputOutput[key]
 					const inputValue = `${input.input}x`
 
-					instance.log('debug', `input: ${JSON.stringify(input)}`)
+					// instance.log('debug', `input: ${JSON.stringify(input)}`)
 					if (input.output.length !== 0) {
 						let command = ''
 
@@ -153,7 +153,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 							command = `${command}${inputValue}${output}.`
 						})
 
-						instance.log('debug', `command: ${command}`)
+						// instance.log('debug', `command: ${command}`)
 						sendActionCommand(command)
 					}
 				}
