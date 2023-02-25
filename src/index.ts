@@ -1,20 +1,24 @@
-import { InstanceBase, InstanceStatus, runEntrypoint, SomeCompanionConfigField, TCPHelper } from '@companion-module/base'
+import {
+	InstanceBase,
+	InstanceStatus,
+	runEntrypoint,
+	SomeCompanionConfigField,
+	TCPHelper,
+} from '@companion-module/base'
 import { GetConfigFields, HdtvMatrixConfig } from './config'
 import { GetActions } from './actions'
 import { initVariables, updateVariables } from './variables'
 import { InputOutputDataInterface } from './utils'
-
-
 
 /**
  * @description Companion instance class for Zoom
  */
 class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 	public InputOutput: InputOutputDataInterface = {}
-	public LastInput: string = ''
+	public LastInput = ''
 
 	public socket: TCPHelper | null = null
-	
+
 	public config: HdtvMatrixConfig = {
 		host: '',
 		port: 0,
@@ -46,12 +50,12 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 		if (this.socket) {
 			this.socket.destroy()
 		}
-		
+
 		this.config = config
 		this.saveConfig(config)
 		this.log('info', 'changing config!')
 		this.init_tcp()
-		this.init_tcp_variables()
+		// this.init_tcp_variables()
 		this.updateInstance()
 	}
 
@@ -74,16 +78,13 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 				this.log('error', 'Network error: ' + err.message)
 			})
 
-			this.socket.on('data', () => {
-			})
+			// this.socket.on('data', () => {})
 		} else {
 			this.updateStatus(InstanceStatus.BadConfig)
 		}
 	}
 
-	init_tcp_variables() {
-		
-	}
+	// init_tcp_variables() {}
 	/**
 	 * @description get all config field information
 	 * @returns the config fields
@@ -91,7 +92,6 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 	getConfigFields(): SomeCompanionConfigField[] {
 		return GetConfigFields()
 	}
-	
 
 	/**
 	 * @description close connections and stop timers/intervals

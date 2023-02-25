@@ -3,7 +3,7 @@ import {
 	CompanionActionDefinitions,
 	CompanionActionEvent,
 	CompanionInputFieldDropdown,
-	CompanionInputFieldMultiDropdown
+	CompanionInputFieldMultiDropdown,
 } from '@companion-module/base'
 import { HdtvMatrixConfig } from './config'
 import { InstanceBaseExt } from './utils'
@@ -12,7 +12,7 @@ export enum ActionId {
 	setOutput = 'set_Output',
 	selectInput = 'select_Input',
 	selectOutput = 'select_Output',
-	applyOutputs = 'apply_Outputs'
+	applyOutputs = 'apply_Outputs',
 }
 
 /**
@@ -45,31 +45,27 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 		label: 'Output',
 		id: 'id_output',
 		choices: OUTPUT_CHOICES,
-		default: 1
+		default: 1,
 	}
 
-		const outputOptions: CompanionInputFieldMultiDropdown = {
+	const outputOptions: CompanionInputFieldMultiDropdown = {
 		type: 'multidropdown',
 		label: 'Output',
 		id: 'id_output',
 		choices: OUTPUT_CHOICES,
 		minChoicesForSearch: 0,
-		default: []
+		default: [],
 	}
 
-	const sendActionCommand = async (
-		command: string,
-		_info?: CompanionActionEvent | null
-	) => {
+	const sendActionCommand = (command: string, _info?: CompanionActionEvent | null): void => {
 		// Construct command
-		if (command !== '')
-		{
+		if (command !== '') {
 			/*
-			* create a binary buffer pre-encoded 'latin1' (8bit no change bytes)
-			* sending a string assumes 'utf8' encoding
-			* which then escapes character values over 0x7F
-			* and destroys the 'binary' content
-			*/
+			 * create a binary buffer pre-encoded 'latin1' (8bit no change bytes)
+			 * sending a string assumes 'utf8' encoding
+			 * which then escapes character values over 0x7F
+			 * and destroys the 'binary' content
+			 */
 			// const sendBuf = Buffer.from(cmd + action.options.id_end, 'latin1')
 			const sendBuf = Buffer.from(command, 'latin1')
 			instance.log('debug', 'sending to ' + instance.config.host + ': ' + sendBuf.toString())
@@ -85,27 +81,24 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 	const actions: { [id in ActionId]: CompanionActionDefinition | undefined } = {
 		[ActionId.setOutput]: {
 			name: 'Set Output',
-			options: [
-				inputOption,
-				outputOptions
-			],
+			options: [inputOption, outputOptions],
 			callback: async (action) => {
 				instance.log('debug', JSON.stringify(action))
 				const input = `${await instance.parseVariablesInString(action.options.id_input as string)}x`
 				if ((action.options.id_output as Array<number>).length !== 0) {
-					let command = '';
+					let command = ''
 
-					(action.options.id_output as Array<number>).forEach((output: number) => {
+					;(action.options.id_output as Array<number>).forEach((output: number) => {
 						command = `${command}${input}${output}.`
 					})
 
 					sendActionCommand(command)
 				}
-			}
+			},
 		},
 		[ActionId.selectInput]: {
 			name: 'Select Input',
-			options: [inputOption,],
+			options: [inputOption],
 			callback: async (action) => {
 				instance.log('debug', JSON.stringify(action))
 				const inputNumber: string = action.options.id_input as string
@@ -114,13 +107,13 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 					instance.LastInput = inputNumber
 					instance.InputOutput[inputNumber] = {
 						input: inputNumber,
-						output: []
+						output: [],
 					}
 				}
 
 				instance.log('debug', `LastInput: ${instance.LastInput}`)
 				instance.log('debug', JSON.stringify(instance.InputOutput))
-			}
+			},
 		},
 		[ActionId.selectOutput]: {
 			name: 'Select Output',
@@ -137,24 +130,24 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 					instance.log('debug', `index: ${index}`)
 					if (index === -1) {
 						instance.InputOutput[inputNumber].output.push(outputNumber)
-					}			
+					}
 				}
 
 				instance.log('debug', JSON.stringify(instance.InputOutput))
-			}
+			},
 		},
 		[ActionId.applyOutputs]: {
 			name: 'Apply Outputs',
 			options: [],
-			callback: async (action) => {
+			callback: (action): void => {
 				instance.log('debug', `action: ${JSON.stringify(action)}`)
-				for(const key in instance.InputOutput) {
+				for (const key in instance.InputOutput) {
 					const input = instance.InputOutput[key]
 					const inputValue = `${input.input}x`
-			
+
 					instance.log('debug', `input: ${JSON.stringify(input)}`)
 					if (input.output.length !== 0) {
-						let command = '';
+						let command = ''
 
 						input.output.forEach((output: string) => {
 							command = `${command}${inputValue}${output}.`
@@ -165,9 +158,9 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 					}
 				}
 
-				instance.InputOutput = {}				
-			}
-		}
+				instance.InputOutput = {}
+			},
+		},
 	}
 
 	return actions

@@ -1,6 +1,4 @@
-import {
-	InstanceBase,
-} from '@companion-module/base'
+import { InstanceBase } from '@companion-module/base'
 
 type TimeFormat = 'hh:mm:ss' | 'hh:mm:ss.ms' | 'mm:ss' | 'mm:ss.ms'
 
@@ -88,7 +86,7 @@ export interface InputOutputDataInterface {
 	[input: string]: {
 		input: string
 		output: string[]
-	}	
+	}
 }
 
 export interface InstanceBaseExt<TConfig> extends InstanceBase<TConfig> {

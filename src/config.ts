@@ -23,7 +23,7 @@ export const GetConfigFields = (): SomeCompanionConfigField[] => {
 			default: 5000,
 			min: 1,
 			max: 65535,
-			step: 1
+			step: 1,
 		},
 	]
 }
