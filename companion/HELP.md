@@ -1,10 +1,11 @@
-## HDTV HDMI Matrix
+## HDTV WolfPackGreen HDMI Matrix
 
-A module for controlling HDTV HDMI Matrix.
+A module for controlling HDTV WolfPackGreen HDMI Matrix.
 
 **Support for:**
 
 - HDTVFIX1600AE
+- HDTVFIX1600E
 
 **Available Commands**
 
@@ -13,5 +14,7 @@ A module for controlling HDTV HDMI Matrix.
 - Select Inputs
 - Select Outputs
 - Apply Outputs
+- Clear Selection
+- Send Command
 
 To use Apply Outputs, select an input, then select the outputs you want the input to go to, repeat for all of the input/outputs combinations you want to set and then run Apply Outputs action

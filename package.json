@@ -1,6 +1,6 @@
 {
-	"name": "hdtv-hdmimatrix",
-	"version": "0.1.0",
+	"name": "hdtv-wolfpackgreen",
+	"version": "0.2.0",
 	"main": "dist/index.js",
 	"scripts": {
 		"prepare": "husky install",
@@ -14,7 +14,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/bitfocus/companion-module-hdtv-hdmimatrix.git"
+		"url": "git+https://github.com/bitfocus/companion-module-hdtv-wolfpackgreen"
 	},
 	"dependencies": {
 		"@companion-module/base": "^1.1.1"

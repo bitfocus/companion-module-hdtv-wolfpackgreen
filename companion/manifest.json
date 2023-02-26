@@ -1,16 +1,16 @@
 {
-	"id": "hdtv-hdmimatrix",
-	"name": "hdtv-hdmimatrix",
-	"shortname": "HDTV HDMI Matrix",
-	"description": "HDTV HDMI Matrix plugin for companion",
-	"version": "0.1.0",
+	"id": "hdtv-wolfpackgreen",
+	"name": "hdtv-wolfpackgreen",
+	"shortname": "HDTV WolfPackGreen HDMI Matrix",
+	"description": "HDTV WolfPackGreen HDMI Matrix plugin for companion",
+	"version": "0.2.0",
 	"license": "MIT",
-	"repository": "git+https://github.com/bitfocus/companion-module-hdtv-hdmimatrix.git",
-	"bugs": "https://github.com/bitfocus/companion-module-hdtv-hdmimatrix/issues",
+	"repository": "git+https://github.com/bitfocus/companion-module-hdtv-wolfpackgreen.git",
+	"bugs": "https://github.com/bitfocus/companion-module-hdtv-wolfpackgreen/issues",
 	"maintainers": [
 		{
 			"name": "Justin James",
-			"email": "support@letyournerdbeheard.com"
+			"email": "digitaldrummerj@gmail.com"
 		}
 	],
 	"runtime": {
@@ -21,10 +21,6 @@
 	},
 	"legacyIds": [],
 	"manufacturer": "HDTV",
-	"products": ["HDMI Matrix"],
-	"keywords": [
-		"hdmi matrix", 
-		"hdmi", 
-		"matrix"
-	]
+	"products": ["WolfPackGreen HDMI Matrix"],
+	"keywords": ["hdmi matrix", "hdmi", "matrix"]
 }

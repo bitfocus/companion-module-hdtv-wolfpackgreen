@@ -81,7 +81,9 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 				this.log('error', 'Network error: ' + err.message)
 			})
 
-			// this.socket.on('data', () => {})
+			this.socket.on('data', (data) => {
+				this.log('debug', `socket data: ${data}`)
+			})
 		} else {
 			this.updateStatus(InstanceStatus.BadConfig)
 		}

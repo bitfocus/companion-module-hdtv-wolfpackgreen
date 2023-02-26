@@ -1,8 +1,17 @@
-# companion-module-hdtv-hdmimatrix
+# companion-module-hdtv-wolfpackgreen
 
 See [HELP.md](./HELP.md) and [LICENSE](./LICENSE)
 
 ## Recent Patches
+
+## v0.2.0
+
+- Added feedback to show selected inputs and outputs
+- Added feedback to show selected output for input
+- Allow de-selecting of output for input
+- When clicking already selected output remove it from the previous input
+- Add SendCommand to allow you to send a command directly to the matrix
+- Changed module name from hdtv-hdmimatrix to hdtv-wolfpackgreen
 
 ### V0.1.0
 
