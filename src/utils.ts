@@ -37,13 +37,30 @@ export const rgb = (red: number, green: number, blue: number): number => {
 // 	},
 // }
 
-export const arrayRemove = (arr: Array<number>, value: number): Array<number> => {
+export enum HdtvVersion {
+	HDTVFIX1600AE = 0,
+	HDTVFIX1600E = 1,
+}
+
+export const arrayAddIfNotExist = (arr: Array<string>, value: string): Array<string> => {
+	// Find a index of the value (use this so we can use it for remove)
+	const index = arr.findIndex((element) => element === value)
+	// Create a temp array
+	const tempArr = arr
+	if (index === -1) {
+		tempArr.push(value)
+	}
+
+	return tempArr
+}
+
+export const arrayRemove = (arr: Array<string>, value: string): Array<string> => {
 	return arr.filter(function (element) {
 		return element != value
 	})
 }
 
-export const arrayAddRemove = (arr: Array<number>, value: number): Array<number> => {
+export const arrayAddRemove = (arr: Array<string>, value: string): Array<string> => {
 	// Find a index of the value (use this so we can use it for remove)
 	const index = arr.findIndex((element) => element === value)
 	// Create a temp array
@@ -94,6 +111,7 @@ export interface InstanceBaseExt<TConfig> extends InstanceBase<TConfig> {
 	config: TConfig
 	socket: any
 	LastInput: string
+	SelectedOutputs: string[]
 	InputOutput: InputOutputDataInterface
 	UpdateVariablesValues(): void
 	InitVariables(): void

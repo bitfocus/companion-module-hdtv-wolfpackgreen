@@ -9,6 +9,7 @@ import { GetConfigFields, HdtvMatrixConfig } from './config'
 import { GetActions } from './actions'
 import { initVariables, updateVariables } from './variables'
 import { InputOutputDataInterface } from './utils'
+import { GetFeedbacks } from './feedback'
 
 /**
  * @description Companion instance class for Zoom
@@ -16,12 +17,14 @@ import { InputOutputDataInterface } from './utils'
 class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 	public InputOutput: InputOutputDataInterface = {}
 	public LastInput = ''
+	public SelectedOutputs: string[] = []
 
 	public socket: TCPHelper | null = null
 
 	public config: HdtvMatrixConfig = {
 		host: '',
 		port: 0,
+		model: 0,
 	}
 
 	/**
@@ -127,7 +130,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 		updateVariables(this)
 
 		this.setActionDefinitions(GetActions(this))
-		// this.setFeedbackDefinitions(GetFeedbacks(this))
+		this.setFeedbackDefinitions(GetFeedbacks(this))
 	}
 }
 
