@@ -145,7 +145,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 			name: 'Set Output',
 			options: [inputOption, outputOptions],
 			callback: async (action) => {
-				instance.log('debug', `${JSON.stringify(action)}`)
+				// instance.log('debug', `${JSON.stringify(action)}`)
 				const input = `${action.options.input as string}x`
 				const output = action.options.output as Array<string>
 				const command = formatCommand(input, output)
