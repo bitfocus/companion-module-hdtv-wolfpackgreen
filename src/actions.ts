@@ -47,7 +47,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 	const inputOption: CompanionInputFieldDropdown = {
 		type: 'dropdown',
 		label: 'Input',
-		id: 'id_input',
+		id: 'input',
 		default: CHOICES_INPUT_DEFAULT,
 		choices: INPUT_CHOICES,
 	}
@@ -55,7 +55,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 	const outputOption: CompanionInputFieldDropdown = {
 		type: 'dropdown',
 		label: 'Output',
-		id: 'id_output',
+		id: 'output',
 		choices: OUTPUT_CHOICES,
 		default: '1',
 	}
@@ -63,7 +63,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 	const outputOptions: CompanionInputFieldMultiDropdown = {
 		type: 'multidropdown',
 		label: 'Output',
-		id: 'id_output',
+		id: 'output',
 		choices: OUTPUT_CHOICES,
 		minChoicesForSearch: 0,
 		default: [],
@@ -112,7 +112,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 				case HdtvVersion.HDTVFIX1600AE: {
 					// format: 1x1.1x2.1x3. to set input 1 to output 1,2,3
 					outputs.forEach((output: string) => {
-						instance.log('debug', `formatCommand: output - ${output}`)
+						// instance.log('debug', `formatCommand: output - ${output}`)
 
 						command = `${command}${inputValue}${output}.`
 					})
@@ -146,8 +146,8 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 			options: [inputOption, outputOptions],
 			callback: async (action) => {
 				instance.log('debug', `${JSON.stringify(action)}`)
-				const input = `${action.options.id_input as string}x`
-				const output = action.options.id_output as Array<string>
+				const input = `${action.options.input as string}x`
+				const output = action.options.output as Array<string>
 				const command = formatCommand(input, output)
 				if (command !== '') {
 					sendActionCommand(command)
@@ -159,7 +159,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 			options: [inputOption],
 			callback: async (action) => {
 				// instance.log('debug', `selectInput: action - ${JSON.stringify(action)}`)
-				const inputNumber: string = action.options.id_input as string
+				const inputNumber: string = action.options.input as string
 				// instance.log('debug', `selectInput: inputNumber - ${inputNumber}`)
 				if (Object.prototype.hasOwnProperty.call(instance.InputOutput, inputNumber) === false) {
 					instance.LastInput = inputNumber
@@ -184,7 +184,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 				// instance.log('debug', `selectOutput: action - ${JSON.stringify(action)}`)
 				const inputNumber: string = instance.LastInput
 				// instance.log('debug', `selectOutput: inputNumber - ${inputNumber}`)
-				const outputNumber: string = action.options.id_output as string
+				const outputNumber: string = action.options.output as string
 				// instance.log('debug', `selectOutput: outputNumber - ${outputNumber}`)
 				// REMOVE output for another input
 				const outputInInput = Object.keys(instance.InputOutput).find(
@@ -227,7 +227,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 					// instance.log('debug', `applyOutputs: single InputOutput - ${JSON.stringify(input)}`)
 
 					const command = formatCommand(input.input, input.output)
-					instance.log('debug', `applyOutputs: command - ${command}`)
+					// instance.log('debug', `applyOutputs: command - ${command}`)
 
 					if (command !== '') {
 						sendActionCommand(command)

@@ -10,6 +10,7 @@ import { GetActions } from './actions'
 import { initVariables, updateVariables } from './variables'
 import { InputOutputDataInterface } from './utils'
 import { GetFeedbacks } from './feedback'
+import { GetPresetList } from './presets'
 
 /**
  * @description Companion instance class for Zoom
@@ -33,7 +34,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 	 */
 	constructor(internal: unknown) {
 		super(internal)
-		this.instanceOptions.disableVariableValidation = true
+		// this.instanceOptions.disableVariableValidation = true
 	}
 
 	/**
@@ -58,7 +59,6 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 		this.saveConfig(config)
 		this.log('info', 'changing config!')
 		this.init_tcp()
-		// this.init_tcp_variables()
 		this.updateInstance()
 	}
 
@@ -89,7 +89,6 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 		}
 	}
 
-	// init_tcp_variables() {}
 	/**
 	 * @description get all config field information
 	 * @returns the config fields
@@ -132,6 +131,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 		updateVariables(this)
 
 		this.setActionDefinitions(GetActions(this))
+		this.setPresetDefinitions(GetPresetList())
 		this.setFeedbackDefinitions(GetFeedbacks(this))
 	}
 }
