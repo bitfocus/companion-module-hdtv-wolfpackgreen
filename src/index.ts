@@ -102,6 +102,8 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 	 */
 	async destroy() {
 		this.InputOutput = {}
+		this.SelectedOutputs = []
+		this.LastInput = ''
 		this.log('debug', `Instance destroyed: ${this.id}`)
 		if (this.socket) {
 			this.socket.destroy()
