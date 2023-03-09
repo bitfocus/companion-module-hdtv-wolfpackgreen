@@ -104,6 +104,25 @@ export function GetPresetList(): CompanionPresetDefinitions {
 		feedbacks: [],
 	}
 
+	presets[`Unset_All_Output`] = {
+		type: 'button',
+		category: 'Actions',
+		name: `Unset All Outputs`,
+		style: {
+			text: `Unset All Outputs`,
+			size: '14',
+			color: combineRgb(255, 255, 255),
+			bgcolor: combineRgb(0, 0, 0),
+		},
+		steps: [
+			{
+				down: [{ actionId: ActionId.unselectAll, options: {} }],
+				up: [],
+			},
+		],
+		feedbacks: [],
+	}
+
 	for (let index = 1; index < 17; index++) {
 		presets[`Select_Input_${index}`] = {
 			type: 'button',
@@ -139,9 +158,7 @@ export function GetPresetList(): CompanionPresetDefinitions {
 				},
 			],
 		}
-	}
 
-	for (let index = 1; index < 17; index++) {
 		presets[`Select_Output_${index}`] = {
 			type: 'button',
 			category: 'Outputs',
@@ -175,6 +192,78 @@ export function GetPresetList(): CompanionPresetDefinitions {
 					},
 				},
 			],
+		}
+
+		presets[`Unselect_Output_${index}`] = {
+			type: 'button',
+			category: 'Unselect Outputs',
+			name: `Unselect Output ${index}`,
+			style: {
+				text: `Unselect Output ${index}`,
+				size: '14',
+				color: combineRgb(255, 255, 255),
+				bgcolor: combineRgb(0, 0, 0),
+			},
+			steps: [
+				{
+					down: [
+						{
+							actionId: ActionId.unselectOutput,
+							options: { output: index.toString() },
+						},
+					],
+					up: [],
+				},
+			],
+			feedbacks: [],
+		}
+
+		presets[`Save_${index}`] = {
+			type: 'button',
+			category: 'Save Layout',
+			name: `Save Layout ${index}`,
+			style: {
+				text: `Save Layout ${index}`,
+				size: '14',
+				color: combineRgb(255, 255, 255),
+				bgcolor: combineRgb(0, 0, 0),
+			},
+			steps: [
+				{
+					down: [
+						{
+							actionId: ActionId.save,
+							options: { saveLayout: index.toString() },
+						},
+					],
+					up: [],
+				},
+			],
+			feedbacks: [],
+		}
+
+		presets[`Recall_${index}`] = {
+			type: 'button',
+			category: 'Recall Layout',
+			name: `Recall Layout ${index}`,
+			style: {
+				text: `Recall Layout ${index}`,
+				size: '14',
+				color: combineRgb(255, 255, 255),
+				bgcolor: combineRgb(0, 0, 0),
+			},
+			steps: [
+				{
+					down: [
+						{
+							actionId: ActionId.recall,
+							options: { recallLayout: index.toString() },
+						},
+					],
+					up: [],
+				},
+			],
+			feedbacks: [],
 		}
 	}
 	return presets

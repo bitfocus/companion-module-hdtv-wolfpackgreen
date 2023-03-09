@@ -15,6 +15,10 @@ export enum ActionId {
 	applyOutputs = 'apply_Outputs',
 	clearSelected = 'clear_Selected',
 	sendCommand = 'send_Command',
+	unselectOutput = 'unselect_Output',
+	unselectAll = 'unselect_All',
+	save = 'save',
+	recall = 'recall',
 }
 
 /**
@@ -24,14 +28,16 @@ export enum ActionId {
  */
 export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): CompanionActionDefinitions {
 	const INPUT_CHOICES = []
-	for (let index = 1; index < 17; index++) {
-		INPUT_CHOICES.push({ id: index.toString(), label: `Input ${index}` })
-	}
-
 	const CHOICES_INPUT_DEFAULT = '1'
 	const OUTPUT_CHOICES = []
+	const SAVE_CHOICES = []
+	const RECALL_CHOICES = []
+
 	for (let index = 1; index < 17; index++) {
 		OUTPUT_CHOICES.push({ id: index.toString(), label: `Output ${index}` })
+		INPUT_CHOICES.push({ id: index.toString(), label: `Input ${index}` })
+		SAVE_CHOICES.push({ id: index.toString(), label: `Save ${index}` })
+		RECALL_CHOICES.push({ id: index.toString(), label: `Recall ${index}` })
 	}
 
 	const CHOICES_END = [
@@ -178,7 +184,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 			},
 		},
 		[ActionId.selectOutput]: {
-			name: 'Select Output',
+			name: 'Select Output for Input',
 			options: [outputOption],
 			callback: async (action) => {
 				// instance.log('debug', `selectOutput: action - ${JSON.stringify(action)}`)
@@ -268,6 +274,69 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 				if (command !== '') {
 					sendActionCommand(command)
 				}
+			},
+		},
+		[ActionId.unselectOutput]: {
+			name: 'Unselect Output',
+			options: [outputOption],
+			callback: async (action) => {
+				instance.log('debug', `${JSON.stringify(action)}`)
+				const outputNumber: string = action.options.output as string
+				instance.log('debug', `unselectOutput: outputNumber - ${outputNumber}`)
+				const command = `0x${outputNumber}.`
+				instance.log('debug', `unselectOutput: command - ${command}`)
+				sendActionCommand(command)
+
+				clearSelected()
+			},
+		},
+		[ActionId.unselectAll]: {
+			name: 'Unselect All Output',
+			options: [],
+			callback: async () => {
+				const command = `0all.`
+				instance.log('debug', `unselectAll: command - ${command}`)
+				sendActionCommand(command)
+			},
+		},
+		[ActionId.save]: {
+			name: 'Save Layout',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Save Layout',
+					id: 'saveLayout',
+					default: CHOICES_INPUT_DEFAULT,
+					choices: SAVE_CHOICES,
+				},
+			],
+			callback: async (action) => {
+				instance.log('debug', `save: action - ${JSON.stringify(action)}`)
+				const saveLayout: string = action.options.saveLayout as string
+				instance.log('debug', `save: saveLayout - ${saveLayout}`)
+				const command = `Save${saveLayout}.`
+				instance.log('debug', `save: command - ${command}`)
+				sendActionCommand(command)
+			},
+		},
+		[ActionId.recall]: {
+			name: 'Load Saved Layout',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Recall Layout',
+					id: 'recallLayout',
+					default: CHOICES_INPUT_DEFAULT,
+					choices: RECALL_CHOICES,
+				},
+			],
+			callback: async (action) => {
+				instance.log('debug', `recall: action - ${JSON.stringify(action)}`)
+				const recallLayout: string = action.options.recallLayout as string
+				instance.log('debug', `recall: recallLayout - ${recallLayout}`)
+				const command = `Recall${recallLayout}.`
+				instance.log('debug', `recall: command - ${command}`)
+				sendActionCommand(command)
 			},
 		},
 	}
