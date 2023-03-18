@@ -113,6 +113,8 @@ export interface InstanceBaseExt<TConfig> extends InstanceBase<TConfig> {
 	LastInput: string
 	SelectedOutputs: string[]
 	InputOutput: InputOutputDataInterface
+	ExistingInputOutput: InputOutputDataInterface
+	ExistingSelectedOutputs: string[]
 	UpdateVariablesValues(): void
 	InitVariables(): void
 }

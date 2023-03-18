@@ -31,9 +31,9 @@ export function GetPresetList(): CompanionPresetDefinitions {
 	presets[`Apply_Outputs`] = {
 		type: 'button',
 		category: 'Actions',
-		name: `Apply Outputs`,
+		name: `Apply All Selections`,
 		style: {
-			text: `Apply Outputs`,
+			text: `Apply All Selections`,
 			size: '14',
 			color: combineRgb(255, 255, 255),
 			bgcolor: combineRgb(0, 0, 0),
@@ -116,7 +116,7 @@ export function GetPresetList(): CompanionPresetDefinitions {
 		},
 		steps: [
 			{
-				down: [{ actionId: ActionId.unselectAll, options: {} }],
+				down: [{ actionId: ActionId.unsetAll, options: {} }],
 				up: [],
 			},
 		],
@@ -196,10 +196,10 @@ export function GetPresetList(): CompanionPresetDefinitions {
 
 		presets[`Unselect_Output_${index}`] = {
 			type: 'button',
-			category: 'Unselect Outputs',
-			name: `Unselect Output ${index}`,
+			category: 'Unset Outputs',
+			name: `Unset Output ${index}`,
 			style: {
-				text: `Unselect Output ${index}`,
+				text: `Unset Output ${index}`,
 				size: '14',
 				color: combineRgb(255, 255, 255),
 				bgcolor: combineRgb(0, 0, 0),
@@ -208,7 +208,7 @@ export function GetPresetList(): CompanionPresetDefinitions {
 				{
 					down: [
 						{
-							actionId: ActionId.unselectOutput,
+							actionId: ActionId.unsetOutput,
 							options: { output: index.toString() },
 						},
 					],

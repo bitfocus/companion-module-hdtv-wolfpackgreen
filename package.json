@@ -17,10 +17,16 @@
 		"url": "git+https://github.com/bitfocus/companion-module-hdtv-wolfpackgreen"
 	},
 	"dependencies": {
-		"@companion-module/base": "^1.1.1"
+		"@companion-module/base": "^1.1.1",
+		"got": "^12.6.0",
+		"got-cjs": "^12.5.4",
+		"needle": "^3.2.0",
+		"set-interval-async": "^3.0.3"
 	},
 	"devDependencies": {
 		"@companion-module/tools": "^0.5.2",
+		"@types/got": "^9.6.12",
+		"@types/set-interval-async": "^1.0.0",
 		"husky": "^7.0.4",
 		"lint-staged": "^12.3.2",
 		"rimraf": "^3.0.2",

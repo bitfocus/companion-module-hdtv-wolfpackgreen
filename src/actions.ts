@@ -15,10 +15,11 @@ export enum ActionId {
 	applyOutputs = 'apply_Outputs',
 	clearSelected = 'clear_Selected',
 	sendCommand = 'send_Command',
-	unselectOutput = 'unselect_Output',
-	unselectAll = 'unselect_All',
+	unsetOutput = 'unselect_Output',
+	unsetAll = 'unselect_All',
 	save = 'save',
 	recall = 'recall',
+	test = 'test',
 }
 
 /**
@@ -224,7 +225,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 			},
 		},
 		[ActionId.applyOutputs]: {
-			name: 'Apply Outputs',
+			name: 'Apply All Selections',
 			options: [],
 			callback: (): void => {
 				// instance.log('debug', `applyOutputs: instance.InputOutput - ${JSON.stringify(instance.InputOutput)}`)
@@ -244,7 +245,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 			},
 		},
 		[ActionId.clearSelected]: {
-			name: 'Claer Selected',
+			name: 'Clear Selected',
 			options: [],
 			callback: (): void => {
 				clearSelected()
@@ -276,8 +277,8 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 				}
 			},
 		},
-		[ActionId.unselectOutput]: {
-			name: 'Unselect Output',
+		[ActionId.unsetOutput]: {
+			name: 'Unset Output (Instant Action)',
 			options: [outputOption],
 			callback: async (action) => {
 				instance.log('debug', `${JSON.stringify(action)}`)
@@ -290,13 +291,14 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 				clearSelected()
 			},
 		},
-		[ActionId.unselectAll]: {
-			name: 'Unselect All Output',
+		[ActionId.unsetAll]: {
+			name: 'Unset All Output (Instant Action)',
 			options: [],
 			callback: async () => {
 				const command = `0all.`
 				instance.log('debug', `unselectAll: command - ${command}`)
 				sendActionCommand(command)
+				clearSelected()
 			},
 		},
 		[ActionId.save]: {
@@ -337,6 +339,14 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 				const command = `Recall${recallLayout}.`
 				instance.log('debug', `recall: command - ${command}`)
 				sendActionCommand(command)
+				clearSelected()
+			},
+		},
+		[ActionId.test]: {
+			name: 'Test',
+			options: [],
+			callback: async () => {
+				instance.log('debug', `test: map - ${instance.map}`)
 			},
 		},
 	}
