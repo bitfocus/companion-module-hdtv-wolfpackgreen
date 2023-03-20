@@ -66,6 +66,25 @@ export function GetPresetList(): CompanionPresetDefinitions {
 		feedbacks: [],
 	}
 
+	presets[`Refresh_Labels`] = {
+		type: 'button',
+		category: 'Actions',
+		name: `Refresh Matrix LAbels`,
+		style: {
+			text: `Refresh Matrix Label Variables`,
+			size: '14',
+			color: combineRgb(255, 255, 255),
+			bgcolor: combineRgb(0, 0, 0),
+		},
+		steps: [
+			{
+				down: [{ actionId: ActionId.refreshLabels, options: {} }],
+				up: [],
+			},
+		],
+		feedbacks: [],
+	}
+
 	presets[`Send_Command`] = {
 		type: 'button',
 		category: 'Actions',

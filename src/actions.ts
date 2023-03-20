@@ -19,7 +19,7 @@ export enum ActionId {
 	unsetAll = 'unselect_All',
 	save = 'save',
 	recall = 'recall',
-	test = 'test',
+	refreshLabels = 'refresh_Labels',
 }
 
 /**
@@ -342,11 +342,11 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 				clearSelected()
 			},
 		},
-		[ActionId.test]: {
-			name: 'Test',
+		[ActionId.refreshLabels]: {
+			name: 'Refresh Matrix Labels',
 			options: [],
 			callback: async () => {
-				instance.log('debug', `test: map - ${instance.map}`)
+				await instance.getMatrixLabels()
 			},
 		},
 	}

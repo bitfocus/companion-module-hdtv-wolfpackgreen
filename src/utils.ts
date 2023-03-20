@@ -115,6 +115,6 @@ export interface InstanceBaseExt<TConfig> extends InstanceBase<TConfig> {
 	InputOutput: InputOutputDataInterface
 	ExistingInputOutput: InputOutputDataInterface
 	ExistingSelectedOutputs: string[]
-	UpdateVariablesValues(): void
-	InitVariables(): void
+	ExistingLabels: string[]
+	getMatrixLabels(): Promise<void>
 }

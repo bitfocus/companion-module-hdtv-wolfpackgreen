@@ -12,6 +12,14 @@ Note: You will need to enable Companion OSC Listener in the Settings for the nav
 
 ## Recent Patches
 
+## v0.4.0
+
+- Added new commands:
+  - Refresh Matrix Labels
+- Added Get Matrix Current Selections and Refresh Them Every X Seconds
+- Added Get Matrix Labels and make them variables
+- Added preset for Refresh Matrix Labels
+
 ## v0.3.0
 
 - Added new commands:
