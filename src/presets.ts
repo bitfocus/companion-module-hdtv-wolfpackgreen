@@ -69,9 +69,9 @@ export function GetPresetList(): CompanionPresetDefinitions {
 	presets[`Refresh_Labels`] = {
 		type: 'button',
 		category: 'Actions',
-		name: `Refresh Matrix LAbels`,
+		name: `Refresh Matrix Labels`,
 		style: {
-			text: `Refresh Matrix Label Variables`,
+			text: `Refresh Matrix Variables`,
 			size: '14',
 			color: combineRgb(255, 255, 255),
 			bgcolor: combineRgb(0, 0, 0),
@@ -88,9 +88,9 @@ export function GetPresetList(): CompanionPresetDefinitions {
 	presets[`Send_Command`] = {
 		type: 'button',
 		category: 'Actions',
-		name: `Send Command`,
+		name: `Send Custom Command`,
 		style: {
-			text: `Send Command`,
+			text: `Send Custom Command`,
 			size: '14',
 			color: combineRgb(255, 255, 255),
 			bgcolor: combineRgb(0, 0, 0),
@@ -146,9 +146,9 @@ export function GetPresetList(): CompanionPresetDefinitions {
 		presets[`Select_Input_${index}`] = {
 			type: 'button',
 			category: 'Inputs',
-			name: `Select Input ${index}`,
+			name: `Select $(hdtv:InputLabel${index})`,
 			style: {
-				text: `Select Input ${index}`,
+				text: `Select $(hdtv:InputLabel${index})`,
 				size: '14',
 				color: combineRgb(255, 255, 255),
 				bgcolor: combineRgb(0, 0, 0),
@@ -181,9 +181,9 @@ export function GetPresetList(): CompanionPresetDefinitions {
 		presets[`Select_Output_${index}`] = {
 			type: 'button',
 			category: 'Outputs',
-			name: `Select Output ${index}`,
+			name: `Select $(hdtv:OutputLabel${index})`,
 			style: {
-				text: `Select Output ${index}`,
+				text: `Select $(hdtv:OutputLabel${index})`,
 				size: '14',
 				color: combineRgb(255, 255, 255),
 				bgcolor: combineRgb(0, 0, 0),
@@ -216,9 +216,9 @@ export function GetPresetList(): CompanionPresetDefinitions {
 		presets[`Unselect_Output_${index}`] = {
 			type: 'button',
 			category: 'Unset Outputs',
-			name: `Unset Output ${index}`,
+			name: `Unset $(hdtv:OutputLabel${index})`,
 			style: {
-				text: `Unset Output ${index}`,
+				text: `Unset $(hdtv:OutputLabel${index})`,
 				size: '14',
 				color: combineRgb(255, 255, 255),
 				bgcolor: combineRgb(0, 0, 0),
@@ -240,9 +240,9 @@ export function GetPresetList(): CompanionPresetDefinitions {
 		presets[`Save_${index}`] = {
 			type: 'button',
 			category: 'Save Layout',
-			name: `Save Layout ${index}`,
+			name: `Save $(hdtv:RecallSaveLabel${index})`,
 			style: {
-				text: `Save Layout ${index}`,
+				text: `Save $(hdtv:RecallSaveLabel${index})`,
 				size: '14',
 				color: combineRgb(255, 255, 255),
 				bgcolor: combineRgb(0, 0, 0),
@@ -264,9 +264,9 @@ export function GetPresetList(): CompanionPresetDefinitions {
 		presets[`Recall_${index}`] = {
 			type: 'button',
 			category: 'Recall Layout',
-			name: `Recall Layout ${index}`,
+			name: `Recall $(hdtv:RecallSaveLabel${index})`,
 			style: {
-				text: `Recall Layout ${index}`,
+				text: `Recall $(hdtv:RecallSaveLabel${index})`,
 				size: '14',
 				color: combineRgb(255, 255, 255),
 				bgcolor: combineRgb(0, 0, 0),

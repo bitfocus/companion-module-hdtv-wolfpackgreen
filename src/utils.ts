@@ -116,5 +116,8 @@ export interface InstanceBaseExt<TConfig> extends InstanceBase<TConfig> {
 	ExistingInputOutput: InputOutputDataInterface
 	ExistingSelectedOutputs: string[]
 	ExistingLabels: string[]
+	ExistingInputLabels: string[]
+	ExistingOutputLabels: string[]
+	ExistingRecallSaveLabels: string[]
 	getMatrixLabels(): Promise<void>
 }

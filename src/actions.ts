@@ -5,7 +5,8 @@ import {
 	CompanionInputFieldMultiDropdown,
 } from '@companion-module/base'
 import { HdtvMatrixConfig } from './config'
-import { FeedbackId } from './feedback'
+import { FeedbackId, GetFeedbacks } from './feedback'
+import { GetPresetList } from './presets'
 import { arrayAddIfNotExist, arrayAddRemove, arrayRemove, HdtvVersion, InstanceBaseExt } from './utils'
 
 export enum ActionId {
@@ -35,10 +36,10 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 	const RECALL_CHOICES = []
 
 	for (let index = 1; index < 17; index++) {
-		OUTPUT_CHOICES.push({ id: index.toString(), label: `Output ${index}` })
-		INPUT_CHOICES.push({ id: index.toString(), label: `Input ${index}` })
-		SAVE_CHOICES.push({ id: index.toString(), label: `Save ${index}` })
-		RECALL_CHOICES.push({ id: index.toString(), label: `Recall ${index}` })
+		OUTPUT_CHOICES.push({ id: index.toString(), label: `${instance.ExistingOutputLabels[index - 1]}` })
+		INPUT_CHOICES.push({ id: index.toString(), label: `${instance.ExistingInputLabels[index - 1]}` })
+		SAVE_CHOICES.push({ id: index.toString(), label: `Save ${instance.ExistingRecallSaveLabels[index - 1]}` })
+		RECALL_CHOICES.push({ id: index.toString(), label: `Recall ${instance.ExistingRecallSaveLabels[index - 1]}` })
 	}
 
 	const CHOICES_END = [
@@ -347,6 +348,9 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 			options: [],
 			callback: async () => {
 				await instance.getMatrixLabels()
+				instance.setActionDefinitions(GetActions(instance))
+				instance.setPresetDefinitions(GetPresetList())
+				instance.setFeedbackDefinitions(GetFeedbacks(instance))
 			},
 		},
 	}

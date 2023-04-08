@@ -25,6 +25,9 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 	public SelectedOutputs: string[] = []
 	private pingIntervalTimer: any
 	public ExistingLabels: string[] = []
+	public ExistingInputLabels: string[] = []
+	public ExistingOutputLabels: string[] = []
+	public ExistingRecallSaveLabels: string[] = []
 	public socket: TCPHelper | null = null
 
 	public config: HdtvMatrixConfig = {
@@ -76,7 +79,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 				// this.log('debug', `mark: ${mark}`)
 				this.ExistingLabels = mark.split(';')
 
-				// this.log('debug', `getMatrixLabels: existingLabels ${JSON.stringify(this.ExistingLabels)}`)
+				this.log('debug', `getMatrixLabels: existingLabels ${JSON.stringify(this.ExistingLabels)}`)
 				updateVariables(this)
 			})
 		} catch (error: any) {
@@ -175,7 +178,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 		this.config = config
 		this.saveConfig(config)
 		this.init_tcp()
-		this.updateInstance()
+		initVariablesDefinitions(this)
 		await this.getMatrixSelections()
 		await this.getMatrixLabels()
 		if (this.config.selectionRefresh > 0) {
@@ -183,6 +186,10 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 				await this.getMatrixSelections()
 			}, this.config.selectionRefresh * 1000)
 		}
+
+		this.setActionDefinitions(GetActions(this))
+		this.setPresetDefinitions(GetPresetList())
+		this.setFeedbackDefinitions(GetFeedbacks(this))
 
 		this.log('info', 'config changed!')
 
@@ -234,6 +241,9 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 		this.ExistingInputOutput = {}
 		this.ExistingLabels = []
 		this.ExistingSelectedOutputs = []
+		this.ExistingInputLabels = []
+		this.ExistingOutputLabels = []
+		this.ExistingRecallSaveLabels = []
 		if (this.pingIntervalTimer) {
 			await clearIntervalAsync(this.pingIntervalTimer)
 		}
@@ -245,16 +255,6 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 		this.log('debug', `Instance destroyed: ${this.id}`)
 
 		return Promise.resolve()
-	}
-
-	/**
-	 * @description sets actions, variables, presets and feedbacks available for this instance
-	 */
-	public updateInstance(): void {
-		initVariablesDefinitions(this)
-		this.setActionDefinitions(GetActions(this))
-		this.setPresetDefinitions(GetPresetList())
-		this.setFeedbackDefinitions(GetFeedbacks(this))
 	}
 }
 
