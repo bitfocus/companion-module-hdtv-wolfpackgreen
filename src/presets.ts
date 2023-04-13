@@ -85,6 +85,25 @@ export function GetPresetList(): CompanionPresetDefinitions {
 		feedbacks: [],
 	}
 
+	presets[`Refresh_Selections`] = {
+		type: 'button',
+		category: 'Actions',
+		name: `Refresh Matrix Routes`,
+		style: {
+			text: `Refresh Matrix Routes`,
+			size: '14',
+			color: combineRgb(255, 255, 255),
+			bgcolor: combineRgb(0, 0, 0),
+		},
+		steps: [
+			{
+				down: [{ actionId: ActionId.refreshRoutes, options: {} }],
+				up: [],
+			},
+		],
+		feedbacks: [],
+	}
+
 	presets[`Send_Command`] = {
 		type: 'button',
 		category: 'Actions',

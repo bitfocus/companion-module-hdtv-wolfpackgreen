@@ -47,25 +47,6 @@ export function GetFeedbacks(instance: InstanceBaseExt<HdtvMatrixConfig>): Compa
 			description: 'Selected Input',
 			options: [inputOption],
 			callback: (feedback) => {
-				instance.log('debug', `Input: ${feedback.options.input}`)
-				// instance.log('debug', `Feedback.Input: ExistingSelectedOutputs - ${JSON.stringify(instance.ExistingSelectedOutputs)}`)
-				// instance.log('debug', `feedback input: InputOutput - ${JSON.stringify(instance.InputOutput)}, Option: ${feedback.options.input}`)
-
-				// instance.log('debug', `feedback input: ExistingInputOutput: ${JSON.stringify(instance.ExistingInputOutput)}}`)
-
-				// instance.log('debug',`feedback input: ExistingSelectedOutput: ${JSON.stringify(instance.ExistingSelectedOutputs)}}`)
-
-				// instance.log(
-				// 	'debug',
-				// 	`Has Property: ${Object.prototype.hasOwnProperty.call(instance.ExistingInputOutput, feedback.options.input as string)}`
-				// )
-
-				// instance.log(
-				// 	'debug',
-				// 	`Has Feedback: Length - ${instance.ExistingInputOutput[feedback.options.input as string].output.length} ${
-				// 		JSON.stringify(instance.ExistingInputOutput[feedback.options.input as string].output)
-				// 	}`
-				// )
 				if (instance.LastInput === feedback.options.input) {
 					return {
 						bgcolor: combineRgb(0, 255, 0), // green
@@ -101,20 +82,7 @@ export function GetFeedbacks(instance: InstanceBaseExt<HdtvMatrixConfig>): Compa
 			description: 'Selected Output',
 			options: [outputOption],
 			callback: (feedback) => {
-				// instance.log('debug', `feedback output: feedback - ${JSON.stringify(feedback)}`)
 				const outputNumber: string = feedback.options.output as string
-				// instance.log('debug', `LastInput - ${instance.LastInput}`)
-				// instance.log('debug', `Option - ${outputNumber}`)
-				// instance.log('debug', `feedback output: ExistingSelectedOutputs - ${JSON.stringify(instance.ExistingSelectedOutputs)}`)
-
-				// if (outputNumber === '11') {
-				// 	// instance.log('debug', `feedback output: SelectedOutputs - ${JSON.stringify(instance.SelectedOutputs)}`)
-				// 	// instance.log('debug', `IndexOf - ${instance.SelectedOutputs.indexOf(outputNumber)}`)
-				// 	instance.log(
-				// 		'debug',
-				// 		`Existing IndexOf - ${instance.ExistingInputOutput[instance.LastInput].output.indexOf(outputNumber)}`
-				// 	)
-				// }
 
 				if (
 					instance.LastInput !== '' &&
@@ -142,8 +110,8 @@ export function GetFeedbacks(instance: InstanceBaseExt<HdtvMatrixConfig>): Compa
 						}
 					} else {
 						return {
-							bgcolor: combineRgb(0, 0, 255), // blue
-							color: combineRgb(255, 255, 255), // white
+							bgcolor: combineRgb(51, 153, 255), // blue
+							color: combineRgb(0, 0, 0), // black
 						}
 					}
 				} else {

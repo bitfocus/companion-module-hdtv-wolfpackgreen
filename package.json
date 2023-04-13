@@ -38,5 +38,8 @@
 			"yarn lint --fix"
 		]
 	},
-	"prettier": "@companion-module/tools/.prettierrc.json"
+	"prettier": "@companion-module/tools/.prettierrc.json",
+	 "engines": {
+        "node": ">=14.0.0"
+    }
 }

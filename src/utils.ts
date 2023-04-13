@@ -119,5 +119,8 @@ export interface InstanceBaseExt<TConfig> extends InstanceBase<TConfig> {
 	ExistingInputLabels: string[]
 	ExistingOutputLabels: string[]
 	ExistingRecallSaveLabels: string[]
-	getMatrixLabels(): Promise<void>
+	refreshMatrixLabels(): Promise<void>
+	refreshMatrixRoutes(): Promise<void>
+	refreshMatrixRoutesXTimes(numberOfTimes: number): Promise<void>
+	clearSelections(): Promise<void>
 }

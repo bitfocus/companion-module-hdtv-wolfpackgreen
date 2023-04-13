@@ -5,7 +5,6 @@ export interface HdtvMatrixConfig {
 	host: string
 	port: number
 	model: number
-	selectionRefresh: number
 }
 
 export const GetConfigFields = (): SomeCompanionConfigField[] => {
@@ -37,15 +36,6 @@ export const GetConfigFields = (): SomeCompanionConfigField[] => {
 				{ id: HdtvVersion.HDTVFIX1600E, label: HdtvVersion[HdtvVersion.HDTVFIX1600E] },
 			],
 			default: HdtvVersion.HDTVFIX1600AE,
-			width: 6,
-		},
-		{
-			type: 'number',
-			id: 'selectionRefresh',
-			label: 'Number of seconds to refresh status from matrix.  0 disables.',
-			min: 0,
-			max: 600000,
-			default: 2,
 			width: 6,
 		},
 	]

@@ -18,8 +18,6 @@ export function updateVariables(instance: InstanceBaseExt<HdtvMatrixConfig>): vo
 		instance.ExistingInputLabels.push(variables[`InputLabel${i + 1}`] as string)
 	}
 
-	instance.log('debug', `ExistingInputLabels: ${JSON.stringify(instance.ExistingInputLabels)}`)
-
 	offset = 16
 	for (let i = 0; i < 16; i++) {
 		if (instance.ExistingLabels[i + offset] == '' || instance.ExistingLabels[i + offset] == undefined) {
@@ -30,8 +28,6 @@ export function updateVariables(instance: InstanceBaseExt<HdtvMatrixConfig>): vo
 
 		instance.ExistingOutputLabels.push(variables[`OutputLabel${i + 1}`] as string)
 	}
-
-	instance.log('debug', `ExistingOutputLabels: ${JSON.stringify(instance.ExistingOutputLabels)}`)
 
 	offset = 32
 	for (let i = 0; i < 16; i++) {
@@ -44,7 +40,6 @@ export function updateVariables(instance: InstanceBaseExt<HdtvMatrixConfig>): vo
 		instance.ExistingRecallSaveLabels.push(variables[`RecallSaveLabel${i + 1}`] as string)
 	}
 
-	instance.log('debug', `ExistingRecallSaveLabels: ${JSON.stringify(instance.ExistingRecallSaveLabels)}`)
 	instance.setVariableValues(variables)
 }
 

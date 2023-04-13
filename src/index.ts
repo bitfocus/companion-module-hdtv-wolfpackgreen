@@ -29,12 +29,12 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 	public ExistingOutputLabels: string[] = []
 	public ExistingRecallSaveLabels: string[] = []
 	public socket: TCPHelper | null = null
+	private refreshMatrixSelectionsCounter = 0
 
 	public config: HdtvMatrixConfig = {
 		host: '',
 		port: 0,
 		model: 0,
-		selectionRefresh: 0,
 	}
 
 	/**
@@ -57,7 +57,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 		return Promise.resolve()
 	}
 
-	public async getMatrixLabels() {
+	public async refreshMatrixLabels() {
 		const url = `http://${this.config.host}/mark.shtml`
 		//http://192.168.8.80/mark.shtml
 		const headers = {}
@@ -68,7 +68,6 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 			headers,
 		}
 		try {
-			// this.log('debug', `URL: ${url}`)
 			this.log('info', 'Refresh Matrix Labels')
 			await got.get(url, options).then((res) => {
 				const data: any = res.body
@@ -76,19 +75,17 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 				// eslint-disable-next-line
 				let mark = ''
 				eval(data)
-				// this.log('debug', `mark: ${mark}`)
 				this.ExistingLabels = mark.split(';')
 
-				this.log('debug', `getMatrixLabels: existingLabels ${JSON.stringify(this.ExistingLabels)}`)
 				updateVariables(this)
 			})
 		} catch (error: any) {
-			this.log('debug', `getMatrixLabel: error - Err parsing data ${error}`)
+			this.log('error', `getMatrixLabel: error - Err parsing data ${error}`)
 			return
 		}
 	}
 
-	private async getMatrixSelections() {
+	public async refreshMatrixRoutes() {
 		const url = `http://${this.config.host}/sysctl.shtml`
 		//http://192.168.8.80/sysctl.shtml
 		const headers = {}
@@ -100,8 +97,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 		}
 		// labels: http://192.168.8.80/mark.shtml
 		try {
-			// this.log('debug', `URL: ${url}`)
-			this.log('info', 'Refreshing Matrix Selections')
+			this.log('info', 'Refreshing Matrix Routes')
 
 			await got.get(url, options).then((res) => {
 				const data: any = res.body
@@ -116,7 +112,6 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 				let hpdo = 0
 
 				eval(data)
-				// this.log('debug', `map: ${map}, edid: ${edid}, hpdi: ${hpdi}, hpdo: ${hpdo}`)
 
 				this.ExistingInputOutput = {}
 				this.ExistingSelectedOutputs = []
@@ -128,11 +123,8 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 				}
 
 				for (let index = 0; index < map.length; index++) {
-					// this.log('debug', `init: ExistingInputOutput Before - ${JSON.stringify(this.ExistingInputOutput)}`)
 					const outputNumber: string = (index + 1).toString()
-					// this.log('debug', `init: outputNumber - ${outputNumber}`)
 					const inputNumber: string = (map[index] + 1).toString() // This is the value of the input that the output is going to
-					// this.log('debug', `init: inputNumber - ${inputNumber}`)
 					if (map[index] !== 255) {
 						this.ExistingSelectedOutputs = arrayAddIfNotExist(this.ExistingSelectedOutputs, outputNumber)
 
@@ -141,9 +133,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 								input: inputNumber,
 								output: [],
 							}
-						}
-
-						if (Object.prototype.hasOwnProperty.call(this.ExistingInputOutput, inputNumber)) {
+						} else if (Object.prototype.hasOwnProperty.call(this.ExistingInputOutput, inputNumber)) {
 							this.ExistingInputOutput[inputNumber].output = arrayAddRemove(
 								this.ExistingInputOutput[inputNumber].output,
 								outputNumber
@@ -152,15 +142,34 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 					}
 				}
 
-				// this.log('debug', `init: ExistingInputOutput After - ${JSON.stringify(this.ExistingInputOutput)}`)
-				// this.log('debug', `init: ExistingSelectedOutputs After - ${JSON.stringify(this.ExistingSelectedOutputs)}`)
 				this.checkFeedbacks(FeedbackId.input, FeedbackId.output)
 			})
 		} catch (error: any) {
-			this.log('debug', `getMatrixSelections: error - Err parsing data ${error}`)
+			this.log('error', `Refresh Matrix Routes: error - Err parsing data ${error}`)
 			return
 		}
 	}
+
+	public async refreshMatrixRoutesXTimes(numberOfTimes: number) {
+		this.refreshMatrixSelectionsCounter = 0
+		this.pingIntervalTimer = setIntervalAsync(async () => {
+			this.refreshMatrixSelectionsCounter += 1
+			this.log('info', `Refreshing Matrix Routes ${this.refreshMatrixSelectionsCounter} of ${numberOfTimes}`)
+			if (this.refreshMatrixSelectionsCounter >= numberOfTimes) {
+				await clearIntervalAsync(this.pingIntervalTimer)
+			}
+
+			await this.refreshMatrixRoutes()
+		}, 2000)
+	}
+
+	public async clearSelections() {
+		this.InputOutput = {}
+		this.SelectedOutputs = []
+		this.LastInput = ''
+		this.checkFeedbacks(FeedbackId.input, FeedbackId.output)
+	}
+
 	/**
 	 * @description when config is updated
 	 * @param config
@@ -179,13 +188,8 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 		this.saveConfig(config)
 		this.init_tcp()
 		initVariablesDefinitions(this)
-		await this.getMatrixSelections()
-		await this.getMatrixLabels()
-		if (this.config.selectionRefresh > 0) {
-			this.pingIntervalTimer = setIntervalAsync(async () => {
-				await this.getMatrixSelections()
-			}, this.config.selectionRefresh * 1000)
-		}
+		await this.refreshMatrixRoutes()
+		await this.refreshMatrixLabels()
 
 		this.setActionDefinitions(GetActions(this))
 		this.setPresetDefinitions(GetPresetList())
@@ -212,12 +216,10 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 
 			this.socket.on('error', (err) => {
 				this.updateStatus(InstanceStatus.ConnectionFailure, err.message)
-				this.log('error', 'Network error: ' + err.message)
+				this.log('error', `Network error: ${err.message}`)
 			})
 
-			this.socket.on('data', (data) => {
-				this.log('debug', `socket data: ${data}`)
-			})
+			// this.socket.on('data', () => {})
 		} else {
 			this.updateStatus(InstanceStatus.BadConfig)
 		}
