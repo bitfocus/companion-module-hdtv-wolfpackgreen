@@ -3,7 +3,7 @@
 	"name": "hdtv-wolfpackgreen",
 	"shortname": "HDTV WolfPackGreen HDMI Matrix",
 	"description": "HDTV WolfPackGreen HDMI Matrix plugin for companion",
-	"version": "0.3.0",
+	"version": "1.0.0",
 	"license": "MIT",
 	"repository": "git+https://github.com/bitfocus/companion-module-hdtv-wolfpackgreen.git",
 	"bugs": "https://github.com/bitfocus/companion-module-hdtv-wolfpackgreen/issues",

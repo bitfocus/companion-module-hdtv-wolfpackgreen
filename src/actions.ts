@@ -5,7 +5,8 @@ import {
 	CompanionInputFieldMultiDropdown,
 } from '@companion-module/base'
 import { HdtvMatrixConfig } from './config'
-import { FeedbackId } from './feedback'
+import { FeedbackId, GetFeedbacks } from './feedback'
+import { GetPresetList } from './presets'
 import { arrayAddIfNotExist, arrayAddRemove, arrayRemove, HdtvVersion, InstanceBaseExt } from './utils'
 
 export enum ActionId {
@@ -15,10 +16,12 @@ export enum ActionId {
 	applyOutputs = 'apply_Outputs',
 	clearSelected = 'clear_Selected',
 	sendCommand = 'send_Command',
-	unselectOutput = 'unselect_Output',
-	unselectAll = 'unselect_All',
+	unsetOutput = 'unselect_Output',
+	unsetAll = 'unselect_All',
 	save = 'save',
 	recall = 'recall',
+	refreshLabels = 'refresh_Labels',
+	refreshRoutes = 'refresh_routes',
 }
 
 /**
@@ -34,10 +37,10 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 	const RECALL_CHOICES = []
 
 	for (let index = 1; index < 17; index++) {
-		OUTPUT_CHOICES.push({ id: index.toString(), label: `Output ${index}` })
-		INPUT_CHOICES.push({ id: index.toString(), label: `Input ${index}` })
-		SAVE_CHOICES.push({ id: index.toString(), label: `Save ${index}` })
-		RECALL_CHOICES.push({ id: index.toString(), label: `Recall ${index}` })
+		OUTPUT_CHOICES.push({ id: index.toString(), label: `${instance.ExistingOutputLabels[index - 1]}` })
+		INPUT_CHOICES.push({ id: index.toString(), label: `${instance.ExistingInputLabels[index - 1]}` })
+		SAVE_CHOICES.push({ id: index.toString(), label: `Save ${instance.ExistingRecallSaveLabels[index - 1]}` })
+		RECALL_CHOICES.push({ id: index.toString(), label: `Recall ${instance.ExistingRecallSaveLabels[index - 1]}` })
 	}
 
 	const CHOICES_END = [
@@ -81,7 +84,6 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 	 * @param {string} command - the command to run
 	 */
 	const sendActionCommand = (command: string): void => {
-		// Construct command
 		if (command !== '') {
 			/*
 			 * create a binary buffer pre-encoded 'latin1' (8bit no change bytes)
@@ -90,12 +92,12 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 			 * and destroys the 'binary' content
 			 */
 			const sendBuf = Buffer.from(command, 'latin1')
-			instance.log('debug', 'sendActionCommand: sending to ' + instance.config.host + ': ' + sendBuf.toString())
+			instance.log('info', `send command ${command} to ${instance.config.host}: ${sendBuf.toString()}`)
 
 			if (instance.socket !== undefined && instance.socket.isConnected) {
 				instance.socket.send(sendBuf)
 			} else {
-				instance.log('debug', 'sendActionCommand: Socket not connected :(')
+				instance.log('error', 'sendActionCommand: Socket not connected :(')
 			}
 		}
 	}
@@ -110,40 +112,27 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 	const formatCommand = (input: string, outputs: string[]): string => {
 		const inputValue = `${input}x`
 		let command = ''
-		// instance.log('debug', `formatCommand input: ${input}`)
-		// instance.log('debug', `formatCommand outputs: ${JSON.stringify(outputs)}, length: ${outputs.length}`)
-		// instance.log('debug', `formatCommand: model - ${instance.config.model}, config: ${JSON.stringify(instance.config)}`)
 		if (outputs.length !== 0) {
 			switch (instance.config.model) {
 				case HdtvVersion.HDTVFIX1600AE: {
 					// format: 1x1.1x2.1x3. to set input 1 to output 1,2,3
 					outputs.forEach((output: string) => {
-						// instance.log('debug', `formatCommand: output - ${output}`)
-
-						command = `${command}${inputValue}${output}.`
+						command += `${inputValue}${output}.`
 					})
 
-					return command
+					break
 				}
 				case HdtvVersion.HDTVFIX1600E: {
 					// format: 1x1&2&3. to set input 1 to output 1,2,3
 					command = `${inputValue}${outputs.join('&')}.`
-					return command
+					break
 				}
 				default:
-					return ''
+					break
 			}
 		}
 
-		instance.log('debug', `formatCommand Command: ${command}`)
 		return command
-	}
-
-	const clearSelected = (): void => {
-		instance.InputOutput = {}
-		instance.SelectedOutputs = []
-		instance.LastInput = ''
-		instance.checkFeedbacks(FeedbackId.input, FeedbackId.output)
 	}
 
 	const actions: { [id in ActionId]: CompanionActionDefinition | undefined } = {
@@ -151,12 +140,13 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 			name: 'Set Output',
 			options: [inputOption, outputOptions],
 			callback: async (action) => {
-				// instance.log('debug', `${JSON.stringify(action)}`)
 				const input = `${action.options.input as string}x`
 				const output = action.options.output as Array<string>
 				const command = formatCommand(input, output)
 				if (command !== '') {
 					sendActionCommand(command)
+					await instance.refreshMatrixRoutes()
+					// TODO: Update in-memory variables instead of getting selection
 				}
 			},
 		},
@@ -164,9 +154,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 			name: 'Select Input',
 			options: [inputOption],
 			callback: async (action) => {
-				// instance.log('debug', `selectInput: action - ${JSON.stringify(action)}`)
 				const inputNumber: string = action.options.input as string
-				// instance.log('debug', `selectInput: inputNumber - ${inputNumber}`)
 				if (Object.prototype.hasOwnProperty.call(instance.InputOutput, inputNumber) === false) {
 					instance.LastInput = inputNumber
 					instance.InputOutput[inputNumber] = {
@@ -177,9 +165,6 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 					instance.LastInput = inputNumber
 				}
 
-				// instance.log('debug', `selectInput: LastInput - ${instance.LastInput}`)
-				// instance.log('debug', `selectInput: instance.InputOutput - ${JSON.stringify(instance.InputOutput)}`)
-				// instance.log('debug', `selectOutput: instance.SelectedOutputs - ${JSON.stringify(instance.SelectedOutputs)}`)
 				instance.checkFeedbacks(FeedbackId.input, FeedbackId.output)
 			},
 		},
@@ -187,16 +172,12 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 			name: 'Select Output for Input',
 			options: [outputOption],
 			callback: async (action) => {
-				// instance.log('debug', `selectOutput: action - ${JSON.stringify(action)}`)
 				const inputNumber: string = instance.LastInput
-				// instance.log('debug', `selectOutput: inputNumber - ${inputNumber}`)
 				const outputNumber: string = action.options.output as string
-				// instance.log('debug', `selectOutput: outputNumber - ${outputNumber}`)
 				// REMOVE output for another input
 				const outputInInput = Object.keys(instance.InputOutput).find(
 					(k) => k !== inputNumber && instance.InputOutput[k].output.indexOf(outputNumber) > -1
 				)
-				// instance.log('debug', `outputInInput: ${JSON.stringify(outputInInput)}`)
 				if (outputInInput !== undefined) {
 					instance.InputOutput[outputInInput].output = arrayRemove(
 						instance.InputOutput[outputInInput].output,
@@ -218,36 +199,31 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 
 					instance.checkFeedbacks(FeedbackId.output)
 				}
-
-				// instance.log('debug', `selectOutput: instance.SelectedOutputs - ${JSON.stringify(instance.SelectedOutputs)}`)
-				// instance.log('debug', `selectOutput: instance.InputOutput - ${JSON.stringify(instance.InputOutput)}`)
 			},
 		},
 		[ActionId.applyOutputs]: {
-			name: 'Apply Outputs',
+			name: 'Apply All Selections',
 			options: [],
-			callback: (): void => {
-				// instance.log('debug', `applyOutputs: instance.InputOutput - ${JSON.stringify(instance.InputOutput)}`)
+			callback: async () => {
+				let command = ''
 				for (const key in instance.InputOutput) {
 					const input = instance.InputOutput[key]
-					// instance.log('debug', `applyOutputs: single InputOutput - ${JSON.stringify(input)}`)
-
-					const command = formatCommand(input.input, input.output)
-					// instance.log('debug', `applyOutputs: command - ${command}`)
-
-					if (command !== '') {
-						sendActionCommand(command)
-					}
+					command += formatCommand(input.input, input.output)
 				}
 
-				clearSelected()
+				if (command !== '') {
+					sendActionCommand(command)
+					await instance.clearSelections()
+					await instance.refreshMatrixRoutesXTimes(3)
+					// TODO: update instance instead of getting it from matrix since there is a delay with the matrix
+				}
 			},
 		},
 		[ActionId.clearSelected]: {
-			name: 'Claer Selected',
+			name: 'Clear Selected',
 			options: [],
-			callback: (): void => {
-				clearSelected()
+			callback: async () => {
+				await instance.clearSelections()
 			},
 		},
 		[ActionId.sendCommand]: {
@@ -269,34 +245,34 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 				},
 			],
 			callback: async (action) => {
-				// instance.log('debug', `${JSON.stringify(action)}`)
 				const command = await instance.parseVariablesInString(action.options.id_send as string)
 				if (command !== '') {
 					sendActionCommand(command)
+					await instance.getMatrixSelections()
 				}
 			},
 		},
-		[ActionId.unselectOutput]: {
-			name: 'Unselect Output',
+		[ActionId.unsetOutput]: {
+			name: 'Unset Output (Instant Action)',
 			options: [outputOption],
 			callback: async (action) => {
-				instance.log('debug', `${JSON.stringify(action)}`)
 				const outputNumber: string = action.options.output as string
-				instance.log('debug', `unselectOutput: outputNumber - ${outputNumber}`)
 				const command = `0x${outputNumber}.`
-				instance.log('debug', `unselectOutput: command - ${command}`)
 				sendActionCommand(command)
-
-				clearSelected()
+				await instance.clearSelections()
+				await instance.refreshMatrixRoutesXTimes(3)
+				// TODO: update in-memory variables instead of calling get selections
 			},
 		},
-		[ActionId.unselectAll]: {
-			name: 'Unselect All Output',
+		[ActionId.unsetAll]: {
+			name: 'Unset All Output (Instant Action)',
 			options: [],
 			callback: async () => {
 				const command = `0all.`
-				instance.log('debug', `unselectAll: command - ${command}`)
 				sendActionCommand(command)
+				await instance.clearSelections()
+				await instance.refreshMatrixRoutesXTimes(3)
+				// TODO: update in memory selection
 			},
 		},
 		[ActionId.save]: {
@@ -311,11 +287,8 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 				},
 			],
 			callback: async (action) => {
-				instance.log('debug', `save: action - ${JSON.stringify(action)}`)
 				const saveLayout: string = action.options.saveLayout as string
-				instance.log('debug', `save: saveLayout - ${saveLayout}`)
 				const command = `Save${saveLayout}.`
-				instance.log('debug', `save: command - ${command}`)
 				sendActionCommand(command)
 			},
 		},
@@ -331,12 +304,28 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 				},
 			],
 			callback: async (action) => {
-				instance.log('debug', `recall: action - ${JSON.stringify(action)}`)
 				const recallLayout: string = action.options.recallLayout as string
-				instance.log('debug', `recall: recallLayout - ${recallLayout}`)
 				const command = `Recall${recallLayout}.`
-				instance.log('debug', `recall: command - ${command}`)
 				sendActionCommand(command)
+				await instance.clearSelections()
+				await instance.refreshMatrixRoutesXTimes(3)
+			},
+		},
+		[ActionId.refreshLabels]: {
+			name: 'Refresh Matrix Labels',
+			options: [],
+			callback: async () => {
+				await instance.getMatrixLabels()
+				instance.setActionDefinitions(GetActions(instance))
+				instance.setPresetDefinitions(GetPresetList())
+				instance.setFeedbackDefinitions(GetFeedbacks(instance))
+			},
+		},
+		[ActionId.refreshRoutes]: {
+			name: 'Refresh Matrix Routes',
+			options: [],
+			callback: async () => {
+				await instance.refreshMatrixRoutes()
 			},
 		},
 	}

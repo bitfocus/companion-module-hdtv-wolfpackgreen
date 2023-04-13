@@ -10,7 +10,44 @@ The pages in the configuration are 95-99. The first button on pages 96-99 will t
 
 Note: You will need to enable Companion OSC Listener in the Settings for the navigation buttons to work at they use generic OSC commands /press/bank/X Page/X button
 
+## Color Explanation
+
+When using the presets for the Select Input or Select Output, you will see several colors that they do have meaning.
+
+Input Background Colors:
+
+- Blue - currently has an output routed to it in the matrix. Click on it to see the output mapped to it.
+- Red - new output is set to be applied to Matrix when you run the apply selections command
+- Green - currently selected input
+
+Output Background Colors:
+
+- Light Blue - currently mapped to an input
+- Red - will be mapped to a new output when you run the apply selections command
+- Green - currently a selected output for the currently selected input
+- Grayish Green - currently routes in the matrix to the selected input
+
 ## Recent Patches
+
+## v1.0.0
+
+- Added new commands:
+  - Refresh Matrix Routes
+- Added Recall/Save Layout Matrix labels to Companion variables
+- Added preset for Refresh Matrix Routes
+- Added refresh pf routes from Matrix as needed for commands: unset, set input/output, send command, recall layout, and apply selections.
+- Replaced ability to auto refresh matrix routes with a manual refresh. Auto refresh was unneeded network traffic if you are controlling matrix through Companion.
+- Updated preset buttons to use the Matrix Label Variables. Button start with Unset Out, Select In, Select Out, Save Layout, and Recall Layout
+- Updated input, output, and feedback dropdown selections for input or output to use the labels from the Matrix
+- Updated example configuration with the new preset buttons. Note that you will see on Page 95 second row 3 buttons (Save Layout, Unset Out, and Select In) that are triggers by the 1st button on their respective pages when short pressed.
+
+## v0.4.0
+
+- Added new commands:
+  - Refresh Matrix Labels
+- Added Get Matrix Current Selections and Refresh Them Every X Seconds
+- Added Get Matrix Labels and make them variables
+- Added preset for Refresh Matrix Labels
 
 ## v0.3.0
 

@@ -113,6 +113,14 @@ export interface InstanceBaseExt<TConfig> extends InstanceBase<TConfig> {
 	LastInput: string
 	SelectedOutputs: string[]
 	InputOutput: InputOutputDataInterface
-	UpdateVariablesValues(): void
-	InitVariables(): void
+	ExistingInputOutput: InputOutputDataInterface
+	ExistingSelectedOutputs: string[]
+	ExistingLabels: string[]
+	ExistingInputLabels: string[]
+	ExistingOutputLabels: string[]
+	ExistingRecallSaveLabels: string[]
+	refreshMatrixLabels(): Promise<void>
+	refreshMatrixRoutes(): Promise<void>
+	refreshMatrixRoutesXTimes(numberOfTimes: number): Promise<void>
+	clearSelections(): Promise<void>
 }
