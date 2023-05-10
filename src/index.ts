@@ -152,6 +152,11 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 
 	public async refreshMatrixRoutesXTimes(numberOfTimes: number) {
 		this.refreshMatrixSelectionsCounter = 0
+		if (this.pingIntervalTimer) {
+			this.log('debug', 'Clearing Route Refresh Timer')
+			await clearIntervalAsync(this.pingIntervalTimer)
+		}
+
 		this.pingIntervalTimer = setIntervalAsync(async () => {
 			this.refreshMatrixSelectionsCounter += 1
 			this.log('info', `Refreshing Matrix Routes ${this.refreshMatrixSelectionsCounter} of ${numberOfTimes}`)
