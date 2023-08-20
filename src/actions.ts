@@ -315,7 +315,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 			name: 'Refresh Matrix Labels',
 			options: [],
 			callback: async () => {
-				await instance.getMatrixLabels()
+				await instance.refreshMatrixLabels()
 				instance.setActionDefinitions(GetActions(instance))
 				instance.setPresetDefinitions(GetPresetList())
 				instance.setFeedbackDefinitions(GetFeedbacks(instance))
