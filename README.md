@@ -29,6 +29,10 @@ Output Background Colors:
 
 ## Recent Patches
 
+## v1.0.2
+
+- fixed label refresh
+
 ## v1.0.1
 
 - fixed infinite loop in the refresh of routes
