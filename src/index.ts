@@ -5,14 +5,14 @@ import {
 	SomeCompanionConfigField,
 	TCPHelper,
 } from '@companion-module/base'
-import { GetConfigFields, HdtvMatrixConfig } from './config'
-import { GetActions } from './actions'
-import { arrayAddIfNotExist, arrayAddRemove, InputOutputDataInterface } from './utils'
-import { FeedbackId, GetFeedbacks } from './feedback'
-import { GetPresetList } from './presets'
+import { GetConfigFields, HdtvMatrixConfig } from './config.js'
+import { GetActions } from './actions.js'
+import { arrayAddIfNotExist, arrayAddRemove, InputOutputDataInterface } from './utils.js'
+import { FeedbackId, GetFeedbacks } from './feedback.js'
+import { GetPresetList } from './presets.js'
 import { got } from 'got-cjs'
 import { clearIntervalAsync, setIntervalAsync } from 'set-interval-async'
-import { initVariablesDefinitions, updateVariables } from './variables'
+import { initVariablesDefinitions, updateVariables } from './variables.js'
 
 /**
  * @description Companion instance class for Zoom

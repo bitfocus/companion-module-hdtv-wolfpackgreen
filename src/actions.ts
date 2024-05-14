@@ -4,10 +4,10 @@ import {
 	CompanionInputFieldDropdown,
 	CompanionInputFieldMultiDropdown,
 } from '@companion-module/base'
-import { HdtvMatrixConfig } from './config'
-import { FeedbackId, GetFeedbacks } from './feedback'
-import { GetPresetList } from './presets'
-import { arrayAddIfNotExist, arrayAddRemove, arrayRemove, HdtvVersion, InstanceBaseExt } from './utils'
+import { HdtvMatrixConfig } from './config.js'
+import { FeedbackId, GetFeedbacks } from './feedback.js'
+import { GetPresetList } from './presets.js'
+import { arrayAddIfNotExist, arrayAddRemove, arrayRemove, HdtvVersion, InstanceBaseExt } from './utils.js'
 
 export enum ActionId {
 	setOutput = 'set_Output',

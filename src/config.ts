@@ -1,5 +1,5 @@
 import { Regex, SomeCompanionConfigField } from '@companion-module/base'
-import { HdtvVersion } from './utils'
+import { HdtvVersion } from './utils.js'
 
 export interface HdtvMatrixConfig {
 	host: string

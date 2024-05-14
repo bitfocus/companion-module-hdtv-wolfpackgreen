@@ -4,8 +4,8 @@ import {
 	combineRgb,
 	CompanionInputFieldDropdown,
 } from '@companion-module/base'
-import { HdtvMatrixConfig } from './config'
-import { InstanceBaseExt } from './utils'
+import { HdtvMatrixConfig } from './config.js'
+import { InstanceBaseExt } from './utils.js'
 
 export enum FeedbackId {
 	input = 'input',
