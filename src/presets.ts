@@ -1,6 +1,6 @@
 import { combineRgb, CompanionButtonPresetDefinition, CompanionPresetDefinitions } from '@companion-module/base'
-import { ActionId } from './actions'
-import { FeedbackId } from './feedback'
+import { ActionId } from './actions.js'
+import { FeedbackId } from './feedback.js'
 
 interface CompanionPresetExt extends CompanionButtonPresetDefinition {
 	feedbacks: Array<
