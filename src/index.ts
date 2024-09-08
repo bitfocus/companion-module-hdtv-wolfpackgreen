@@ -136,7 +136,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 						} else if (Object.prototype.hasOwnProperty.call(this.ExistingInputOutput, inputNumber)) {
 							this.ExistingInputOutput[inputNumber].output = arrayAddRemove(
 								this.ExistingInputOutput[inputNumber].output,
-								outputNumber
+								outputNumber,
 							)
 						}
 					}

@@ -114,7 +114,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 		let command = ''
 		if (outputs.length !== 0) {
 			switch (instance.config.model) {
-				case HdtvVersion.HDTVFIX1600AE: {
+				case HdtvVersion.HDTVFIX1600AE as number: {
 					// format: 1x1.1x2.1x3. to set input 1 to output 1,2,3
 					outputs.forEach((output: string) => {
 						command += `${inputValue}${output}.`
@@ -122,7 +122,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 
 					break
 				}
-				case HdtvVersion.HDTVFIX1600E: {
+				case HdtvVersion.HDTVFIX1600E as number: {
 					// format: 1x1&2&3. to set input 1 to output 1,2,3
 					command = `${inputValue}${outputs.join('&')}.`
 					break
@@ -176,19 +176,19 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 				const outputNumber: string = action.options.output as string
 				// REMOVE output for another input
 				const outputInInput = Object.keys(instance.InputOutput).find(
-					(k) => k !== inputNumber && instance.InputOutput[k].output.indexOf(outputNumber) > -1
+					(k) => k !== inputNumber && instance.InputOutput[k].output.indexOf(outputNumber) > -1,
 				)
 				if (outputInInput !== undefined) {
 					instance.InputOutput[outputInInput].output = arrayRemove(
 						instance.InputOutput[outputInInput].output,
-						outputNumber
+						outputNumber,
 					)
 				}
 
 				if (Object.prototype.hasOwnProperty.call(instance.InputOutput, inputNumber)) {
 					instance.InputOutput[inputNumber].output = arrayAddRemove(
 						instance.InputOutput[inputNumber].output,
-						outputNumber
+						outputNumber,
 					)
 
 					if (instance.InputOutput[inputNumber].output.indexOf(outputNumber) === -1) {
