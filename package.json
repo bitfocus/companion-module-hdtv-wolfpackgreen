@@ -4,36 +4,39 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"postinstall": "husky",
-		"prepare": "husky install",
 		"format": "prettier -w .",
-		"package": "yarn build && companion-module-build",
-		"dev": "tsc -p tsconfig.build.json --watch",
-		"build": "rimraf dist && yarn build:main",
+		"package": "run build && companion-module-build",
+		"build": "rimraf dist && run build:main",
 		"build:main": "tsc -p tsconfig.build.json",
+		"dev": "tsc -p tsconfig.build.json --watch",
 		"lint:raw": "eslint",
-		"lint": "yarn lint:raw ."
+		"lint": "run lint:raw ."
 	},
 	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/bitfocus/companion-module-hdtv-wolfpackgreen"
 	},
+	"engines": {
+		"node": "^22.14",
+		"yarn": "^4"
+	},
 	"dependencies": {
-		"@companion-module/base": "^1.10.0",
+		"@companion-module/base": "^1.12.1",
 		"got-cjs": "^12.5.4",
 		"set-interval-async": "^3.0.3"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^2.0.2",
+		"@companion-module/tools": "^2.3.0",
 		"@types/got": "^9.6.12",
-		"@types/set-interval-async": "^1.0.0",
-		"eslint": "^9.10.0",
-		"husky": "^9.0.10",
-		"lint-staged": "^15.2.2",
-		"prettier": "^3.3.3",
-		"rimraf": "^4.4.1",
-		"typescript": "^5.3.3",
-		"typescript-eslint": "^8.4.0"
+		"@types/set-interval-async": "^3.0.1",
+		"eslint": "^9.28.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^15.5.2",
+		"prettier": "^3.5.3",
+		"rimraf": "^6.0.1",
+		"typescript": "^5.8.3",
+		"typescript-eslint": "^8.34.0"
 	},
 	"lint-staged": {
 		"*.{css,json,md,scss}": [
@@ -44,7 +47,5 @@
 		]
 	},
 	"prettier": "@companion-module/tools/.prettierrc.json",
-	"engines": {
-		"node": ">=18.0.0"
-	}
+	"packageManager": "yarn@4.9.2"
 }
