@@ -7,7 +7,7 @@ import {
 import { HdtvMatrixConfig } from './config.js'
 import { FeedbackId, GetFeedbacks } from './feedback.js'
 import { GetPresetList } from './presets.js'
-import { arrayAddIfNotExist, arrayAddRemove, arrayRemove, HdtvVersion, InstanceBaseExt } from './utils.js'
+import { arrayAddIfNotExist, arrayAddRemove, arrayRemove, HdtvCommandFormat, InstanceBaseExt } from './utils.js'
 
 export enum ActionId {
 	setOutput = 'set_Output',
@@ -36,7 +36,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 	const SAVE_CHOICES = []
 	const RECALL_CHOICES = []
 
-	for (let index = 1; index < 17; index++) {
+	for (let index = 1; index < instance.model.inputCount; index++) {
 		OUTPUT_CHOICES.push({ id: index.toString(), label: `${instance.ExistingOutputLabels[index - 1]}` })
 		INPUT_CHOICES.push({ id: index.toString(), label: `${instance.ExistingInputLabels[index - 1]}` })
 		SAVE_CHOICES.push({ id: index.toString(), label: `Save ${instance.ExistingRecallSaveLabels[index - 1]}` })
@@ -113,8 +113,8 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 		const inputValue = `${input}x`
 		let command = ''
 		if (outputs.length !== 0) {
-			switch (instance.config.model) {
-				case HdtvVersion.HDTVFIX1600AE as number: {
+			switch (instance.model.commandFormat) {
+				case HdtvCommandFormat.PeriodSeparator: {
 					// format: 1x1.1x2.1x3. to set input 1 to output 1,2,3
 					outputs.forEach((output: string) => {
 						command += `${inputValue}${output}.`
@@ -122,7 +122,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 
 					break
 				}
-				case HdtvVersion.HDTVFIX1600E as number: {
+				case HdtvCommandFormat.AndSeparator: {
 					// format: 1x1&2&3. to set input 1 to output 1,2,3
 					command = `${inputValue}${outputs.join('&')}.`
 					break
@@ -317,7 +317,7 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 			callback: async () => {
 				await instance.refreshMatrixLabels()
 				instance.setActionDefinitions(GetActions(instance))
-				instance.setPresetDefinitions(GetPresetList())
+				instance.setPresetDefinitions(GetPresetList(instance))
 				instance.setFeedbackDefinitions(GetFeedbacks(instance))
 			},
 		},

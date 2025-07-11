@@ -1,4 +1,5 @@
 import { InstanceBase } from '@companion-module/base'
+import { ModelSpec } from './models/index.js'
 
 type TimeFormat = 'hh:mm:ss' | 'hh:mm:ss.ms' | 'mm:ss' | 'mm:ss.ms'
 
@@ -20,26 +21,15 @@ export const rgb = (red: number, green: number, blue: number): number => {
 	return ((red & 0xff) << 16) | ((green & 0xff) << 8) | (blue & 0xff)
 }
 
-// export const options: Options = {
-// 	input: {
-// 		type: 'dropdown',
-// 		label: 'Input Number',
-// 		id: 'input',
-// 		default: 1,
-// 		choices: []
-// 	},
-// 	output: {
-// 		type: 'multidropdown',
-// 		label: 'Outputs',
-// 		id: 'outputs',
-// 		default: [],
-// 		choices: []
-// 	},
-// }
-
 export enum HdtvVersion {
 	HDTVFIX1600AE = 0,
 	HDTVFIX1600E = 1,
+	HDTVFIX800E = 2,
+}
+
+export enum HdtvCommandFormat {
+	AndSeparator = '&',
+	PeriodSeparator = '.',
 }
 
 export const arrayAddIfNotExist = (arr: Array<string>, value: string): Array<string> => {
@@ -119,6 +109,7 @@ export interface InstanceBaseExt<TConfig> extends InstanceBase<TConfig> {
 	ExistingInputLabels: string[]
 	ExistingOutputLabels: string[]
 	ExistingRecallSaveLabels: string[]
+	model: ModelSpec
 	refreshMatrixLabels(): Promise<void>
 	refreshMatrixRoutes(): Promise<void>
 	refreshMatrixRoutesXTimes(numberOfTimes: number): Promise<void>

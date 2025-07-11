@@ -1,5 +1,6 @@
 import { Regex, SomeCompanionConfigField } from '@companion-module/base'
 import { HdtvVersion } from './utils.js'
+import { ALL_MODEL_CHOICES } from './models/index.js'
 
 export interface HdtvMatrixConfig {
 	host: string
@@ -31,10 +32,7 @@ export const GetConfigFields = (): SomeCompanionConfigField[] => {
 			type: 'dropdown',
 			id: 'model',
 			label: 'HDTV Model',
-			choices: [
-				{ id: HdtvVersion.HDTVFIX1600AE, label: HdtvVersion[HdtvVersion.HDTVFIX1600AE] },
-				{ id: HdtvVersion.HDTVFIX1600E, label: HdtvVersion[HdtvVersion.HDTVFIX1600E] },
-			],
+			choices: ALL_MODEL_CHOICES,
 			default: HdtvVersion.HDTVFIX1600AE,
 			width: 6,
 		},
