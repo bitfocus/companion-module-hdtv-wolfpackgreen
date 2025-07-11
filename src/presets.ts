@@ -1,6 +1,8 @@
 import { combineRgb, CompanionButtonPresetDefinition, CompanionPresetDefinitions } from '@companion-module/base'
 import { ActionId } from './actions.js'
 import { FeedbackId } from './feedback.js'
+import { InstanceBaseExt } from './utils.js'
+import { HdtvMatrixConfig } from './config.js'
 
 interface CompanionPresetExt extends CompanionButtonPresetDefinition {
 	feedbacks: Array<
@@ -25,7 +27,7 @@ interface CompanionPresetExt extends CompanionButtonPresetDefinition {
 interface CompanionPresetDefinitionsExt {
 	[id: string]: CompanionPresetExt | undefined
 }
-export function GetPresetList(): CompanionPresetDefinitions {
+export function GetPresetList(instance: InstanceBaseExt<HdtvMatrixConfig>): CompanionPresetDefinitions {
 	const presets: CompanionPresetDefinitionsExt = {}
 
 	presets[`Apply_Outputs`] = {
@@ -161,7 +163,7 @@ export function GetPresetList(): CompanionPresetDefinitions {
 		feedbacks: [],
 	}
 
-	for (let index = 1; index < 17; index++) {
+	for (let index = 1; index <= instance.model.inputCount; index++) {
 		presets[`Select_Input_${index}`] = {
 			type: 'button',
 			category: 'Inputs',
@@ -196,7 +198,9 @@ export function GetPresetList(): CompanionPresetDefinitions {
 				},
 			],
 		}
+	}
 
+	for (let index = 1; index <= instance.model.outputCount; index++) {
 		presets[`Select_Output_${index}`] = {
 			type: 'button',
 			category: 'Outputs',
@@ -255,7 +259,9 @@ export function GetPresetList(): CompanionPresetDefinitions {
 			],
 			feedbacks: [],
 		}
+	}
 
+	for (let index = 1; index <= instance.model.recallSaveCount; index++) {
 		presets[`Save_${index}`] = {
 			type: 'button',
 			category: 'Save Layout',

@@ -13,11 +13,14 @@ import { GetPresetList } from './presets.js'
 import { got } from 'got-cjs'
 import { clearIntervalAsync, setIntervalAsync } from 'set-interval-async'
 import { initVariablesDefinitions, updateVariables } from './variables.js'
+import { MODEL_AUTO_DETECT, ModelSpec } from './models/types.js'
+import { GetAutoDetectModel, GetModelSpec } from './models/index.js'
 
 /**
  * @description Companion instance class for Zoom
  */
 class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
+	public model: ModelSpec
 	public InputOutput: InputOutputDataInterface = {}
 	public ExistingInputOutput: InputOutputDataInterface = {}
 	public ExistingSelectedOutputs: string[] = []
@@ -43,7 +46,9 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 	 */
 	constructor(internal: unknown) {
 		super(internal)
+
 		// this.instanceOptions.disableVariableValidation = true
+		this.model = GetModelSpec(this.config.model || MODEL_AUTO_DETECT) || GetAutoDetectModel()
 	}
 
 	/**
@@ -115,7 +120,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 
 				this.ExistingInputOutput = {}
 				this.ExistingSelectedOutputs = []
-				for (let index = 1; index < 17; index++) {
+				for (let index = 1; index <= this.model.inputCount; index++) {
 					this.ExistingInputOutput[index] = {
 						input: index.toString(),
 						output: [],
@@ -192,12 +197,13 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 		this.config = config
 		this.saveConfig(config)
 		this.init_tcp()
+		this.model = GetModelSpec(this.config.model || MODEL_AUTO_DETECT) || GetAutoDetectModel()
 		initVariablesDefinitions(this)
 		await this.refreshMatrixRoutes()
 		await this.refreshMatrixLabels()
 
 		this.setActionDefinitions(GetActions(this))
-		this.setPresetDefinitions(GetPresetList())
+		this.setPresetDefinitions(GetPresetList(this))
 		this.setFeedbackDefinitions(GetFeedbacks(this))
 
 		this.log('info', 'config changed!')

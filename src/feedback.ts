@@ -14,13 +14,13 @@ export enum FeedbackId {
 
 export function GetFeedbacks(instance: InstanceBaseExt<HdtvMatrixConfig>): CompanionFeedbackDefinitions {
 	const INPUT_CHOICES = []
-	for (let index = 1; index < 17; index++) {
+	for (let index = 1; index <= instance.model.inputCount; index++) {
 		INPUT_CHOICES.push({ id: index.toString(), label: `${instance.ExistingInputLabels[index - 1]}` })
 	}
 
 	const CHOICES_INPUT_DEFAULT = '1'
 	const OUTPUT_CHOICES = []
-	for (let index = 1; index < 17; index++) {
+	for (let index = 1; index <= instance.model.outputCount; index++) {
 		OUTPUT_CHOICES.push({ id: index.toString(), label: `${instance.ExistingOutputLabels[index - 1]}` })
 	}
 

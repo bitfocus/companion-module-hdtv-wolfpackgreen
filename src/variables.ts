@@ -8,7 +8,7 @@ export function updateVariables(instance: InstanceBaseExt<HdtvMatrixConfig>): vo
 	instance.ExistingOutputLabels = []
 	instance.ExistingRecallSaveLabels = []
 	let offset = 0
-	for (let i = 0; i < 16; i++) {
+	for (let i = 0; i < instance.model.inputCount; i++) {
 		if (instance.ExistingLabels[i + offset] == '' || instance.ExistingLabels[i + offset] == undefined) {
 			variables[`InputLabel${i + 1}`] = `In ${i + 1}`
 		} else {
@@ -18,8 +18,8 @@ export function updateVariables(instance: InstanceBaseExt<HdtvMatrixConfig>): vo
 		instance.ExistingInputLabels.push(variables[`InputLabel${i + 1}`] as string)
 	}
 
-	offset = 16
-	for (let i = 0; i < 16; i++) {
+	offset = instance.model.inputCount
+	for (let i = 0; i < instance.model.outputCount; i++) {
 		if (instance.ExistingLabels[i + offset] == '' || instance.ExistingLabels[i + offset] == undefined) {
 			variables[`OutputLabel${i + 1}`] = `Out ${i + 1}`
 		} else {
@@ -29,8 +29,8 @@ export function updateVariables(instance: InstanceBaseExt<HdtvMatrixConfig>): vo
 		instance.ExistingOutputLabels.push(variables[`OutputLabel${i + 1}`] as string)
 	}
 
-	offset = 32
-	for (let i = 0; i < 16; i++) {
+	offset = instance.model.inputCount + instance.model.outputCount
+	for (let i = 0; i < instance.model.recallSaveCount; i++) {
 		if (instance.ExistingLabels[i + offset] == '' || instance.ExistingLabels[i + offset] == undefined) {
 			variables[`RecallSaveLabel${i + 1}`] = `Layout ${i + 1}`
 		} else {
@@ -47,17 +47,19 @@ export function initVariablesDefinitions(instance: InstanceBaseExt<HdtvMatrixCon
 	const inputLabels = []
 	const outputLabels = []
 	const recallSaveLabels = []
-	for (let i = 1; i < 17; i++) {
+	for (let i = 1; i <= instance.model.inputCount; i++) {
 		inputLabels.push({
 			name: `Input Label ${i}`,
 			variableId: `InputLabel${i}`,
 		})
-
+	}
+	for (let i = 1; i <= instance.model.outputCount; i++) {
 		outputLabels.push({
 			name: `Output Label ${i}`,
 			variableId: `OutputLabel${i}`,
 		})
-
+	}
+	for (let i = 1; i <= instance.model.recallSaveCount; i++) {
 		recallSaveLabels.push({
 			name: `RecallSaveLabel ${i}`,
 			variableId: `RecallSaveLabel${i}`,
