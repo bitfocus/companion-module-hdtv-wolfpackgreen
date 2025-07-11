@@ -235,9 +235,7 @@ export function GetPresetList(instance: InstanceBaseExt<HdtvMatrixConfig>): Comp
 				},
 			],
 		}
-	}
 
-	for (let index = 1; index <= instance.model.outputCount; index++) {
 		presets[`Unselect_Output_${index}`] = {
 			type: 'button',
 			category: 'Unset Outputs',

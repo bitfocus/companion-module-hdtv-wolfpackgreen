@@ -8,7 +8,7 @@ export function updateVariables(instance: InstanceBaseExt<HdtvMatrixConfig>): vo
 	instance.ExistingOutputLabels = []
 	instance.ExistingRecallSaveLabels = []
 	let offset = 0
-	for (let i = 0; i <= instance.model.inputCount; i++) {
+	for (let i = 0; i < instance.model.inputCount; i++) {
 		if (instance.ExistingLabels[i + offset] == '' || instance.ExistingLabels[i + offset] == undefined) {
 			variables[`InputLabel${i + 1}`] = `In ${i + 1}`
 		} else {
@@ -19,7 +19,7 @@ export function updateVariables(instance: InstanceBaseExt<HdtvMatrixConfig>): vo
 	}
 
 	offset = instance.model.inputCount
-	for (let i = 0; i <= instance.model.outputCount; i++) {
+	for (let i = 0; i < instance.model.outputCount; i++) {
 		if (instance.ExistingLabels[i + offset] == '' || instance.ExistingLabels[i + offset] == undefined) {
 			variables[`OutputLabel${i + 1}`] = `Out ${i + 1}`
 		} else {
@@ -30,7 +30,7 @@ export function updateVariables(instance: InstanceBaseExt<HdtvMatrixConfig>): vo
 	}
 
 	offset = instance.model.inputCount + instance.model.outputCount
-	for (let i = 0; i <= instance.model.recallSaveCount; i++) {
+	for (let i = 0; i < instance.model.recallSaveCount; i++) {
 		if (instance.ExistingLabels[i + offset] == '' || instance.ExistingLabels[i + offset] == undefined) {
 			variables[`RecallSaveLabel${i + 1}`] = `Layout ${i + 1}`
 		} else {
