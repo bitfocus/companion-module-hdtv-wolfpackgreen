@@ -80,7 +80,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 				// eslint-disable-next-line
 				let mark = ''
 				eval(data)
-				this.ExistingLabels = mark.replace('%20', ' ').split(';')
+				this.ExistingLabels = mark.replace(/%20/g, ' ').split(';')
 
 				updateVariables(this)
 			})
