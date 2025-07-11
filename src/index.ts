@@ -120,7 +120,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 
 				this.ExistingInputOutput = {}
 				this.ExistingSelectedOutputs = []
-				for (let index = 1; index < this.model.inputCount; index++) {
+				for (let index = 1; index <= this.model.inputCount; index++) {
 					this.ExistingInputOutput[index] = {
 						input: index.toString(),
 						output: [],

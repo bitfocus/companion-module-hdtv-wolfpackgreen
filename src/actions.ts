@@ -36,9 +36,13 @@ export function GetActions(instance: InstanceBaseExt<HdtvMatrixConfig>): Compani
 	const SAVE_CHOICES = []
 	const RECALL_CHOICES = []
 
-	for (let index = 1; index < instance.model.inputCount; index++) {
+	for (let index = 1; index <= instance.model.outputCount; index++) {
 		OUTPUT_CHOICES.push({ id: index.toString(), label: `${instance.ExistingOutputLabels[index - 1]}` })
+	}
+	for (let index = 1; index <= instance.model.inputCount; index++) {
 		INPUT_CHOICES.push({ id: index.toString(), label: `${instance.ExistingInputLabels[index - 1]}` })
+	}
+	for (let index = 1; index <= instance.model.recallSaveCount; index++) {
 		SAVE_CHOICES.push({ id: index.toString(), label: `Save ${instance.ExistingRecallSaveLabels[index - 1]}` })
 		RECALL_CHOICES.push({ id: index.toString(), label: `Recall ${instance.ExistingRecallSaveLabels[index - 1]}` })
 	}
