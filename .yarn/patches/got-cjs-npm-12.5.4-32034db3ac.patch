@@ -1,0 +1,25 @@
+diff --git a/dist/source/core/index.js b/dist/source/core/index.js
+index b09faf8fb1c9dc2c5979f8c27ec3b936a5baa056..158ab9de80edb583f5c1bd0db8db52b20980e513 100644
+--- a/dist/source/core/index.js
++++ b/dist/source/core/index.js
+@@ -460,12 +460,15 @@ class Request extends stream_1.Duplex {
+                 if (this._request._writableState?.errored) {
+                     return;
+                 }
+-                if (!error) {
+-                    this._bodySize = this._uploadedSize;
+-                    this.emit('uploadProgress', this.uploadProgress);
+-                    this._request.emit('upload-complete');
++                if (error) {
++                    // Backport https://github.com/sindresorhus/got/pull/2470 for Node 26.
++                    this._beforeError(error);
++                    return;
+                 }
+-                callback(error);
++                this._bodySize = this._uploadedSize;
++                this.emit('uploadProgress', this.uploadProgress);
++                this._request.emit('upload-complete');
++                callback();
+             });
+         };
+         if (this._requestInitialized) {
