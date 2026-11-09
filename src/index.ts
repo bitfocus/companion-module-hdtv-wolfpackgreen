@@ -7,7 +7,13 @@ import {
 } from '@companion-module/base'
 import { GetConfigFields, HdtvMatrixConfig } from './config.js'
 import { GetActions } from './actions.js'
-import { arrayAddIfNotExist, arrayAddRemove, InputOutputDataInterface } from './utils.js'
+import {
+	arrayAddIfNotExist,
+	arrayAddRemove,
+	InputOutputDataInterface,
+	parseLabelsPage,
+	parseRoutesPage,
+} from './utils.js'
 import { FeedbackId, GetFeedbacks } from './feedback.js'
 import { GetPresetList } from './presets.js'
 import { clearIntervalAsync, setIntervalAsync } from 'set-interval-async'
@@ -103,11 +109,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 		try {
 			this.log('info', 'Refresh Matrix Labels')
 			const data = await httpGetText(url, signal)
-
-			// eslint-disable-next-line
-			let mark = ''
-			eval(data)
-			this.ExistingLabels = mark.replace(/%20/g, ' ').split(';')
+			this.ExistingLabels = parseLabelsPage(data)
 
 			updateVariables(this)
 		} catch (error: any) {
@@ -126,20 +128,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 			this.log('info', 'Refreshing Matrix Routes')
 
 			const data = await httpGetText(url, signal)
-
-			// sysctl.shtml is a script that assigns map, edid, hpdi and hpdo. All four must be declared here,
-			// or eval() throws a ReferenceError in strict mode, even though only map is read afterwards.
-			/* eslint-disable prefer-const, @typescript-eslint/no-unused-vars */
-			let map = [1, 2, 3, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]
-			// @ts-expect-error TS6133: only assigned by eval(data)
-			let edid = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-			// @ts-expect-error TS6133: only assigned by eval(data)
-			let hpdi = 0
-			// @ts-expect-error TS6133: only assigned by eval(data)
-			let hpdo = 0
-			/* eslint-enable prefer-const, @typescript-eslint/no-unused-vars */
-
-			eval(data)
+			const map = parseRoutesPage(data)
 
 			this.ExistingInputOutput = {}
 			this.ExistingSelectedOutputs = []
