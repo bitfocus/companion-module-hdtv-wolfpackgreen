@@ -15,7 +15,7 @@ import { initVariablesDefinitions, updateVariables } from './variables.js'
 import { MODEL_AUTO_DETECT, ModelSpec } from './models/types.js'
 import { GetAutoDetectModel, GetModelSpec } from './models/index.js'
 
-const HTTP_TIMEOUT_MS = 5000
+const HTTP_TIMEOUT_MS = 30000
 const HTTP_RETRY_LIMIT = 2
 const HTTP_RETRY_DELAY_MS = 1000
 
