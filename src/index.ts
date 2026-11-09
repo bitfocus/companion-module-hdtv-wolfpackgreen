@@ -10,11 +10,40 @@ import { GetActions } from './actions.js'
 import { arrayAddIfNotExist, arrayAddRemove, InputOutputDataInterface } from './utils.js'
 import { FeedbackId, GetFeedbacks } from './feedback.js'
 import { GetPresetList } from './presets.js'
-import { got } from 'got-cjs'
 import { clearIntervalAsync, setIntervalAsync } from 'set-interval-async'
 import { initVariablesDefinitions, updateVariables } from './variables.js'
 import { MODEL_AUTO_DETECT, ModelSpec } from './models/types.js'
 import { GetAutoDetectModel, GetModelSpec } from './models/index.js'
+
+const HTTP_TIMEOUT_MS = 5000
+const HTTP_RETRY_LIMIT = 2
+const HTTP_RETRY_DELAY_MS = 1000
+
+/**
+ * @description GET a page from the matrix web interface and return the body as text.
+ * Network errors, timeouts and 5xx responses are retried, other HTTP errors are thrown immediately.
+ * @param url
+ */
+async function httpGetText(url: string): Promise<string> {
+	let lastError: unknown
+	for (let attempt = 0; attempt <= HTTP_RETRY_LIMIT; attempt++) {
+		if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, HTTP_RETRY_DELAY_MS))
+
+		let res: Response
+		try {
+			res = await fetch(url, { signal: AbortSignal.timeout(HTTP_TIMEOUT_MS) })
+		} catch (error) {
+			lastError = error
+			continue
+		}
+
+		if (res.ok) return await res.text()
+
+		lastError = new Error(`HTTP ${res.status} ${res.statusText}`)
+		if (res.status < 500) break
+	}
+	throw lastError
+}
 
 /**
  * @description Companion instance class for Zoom
@@ -65,25 +94,16 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 	public async refreshMatrixLabels() {
 		const url = `http://${this.config.host}/mark.shtml`
 		//http://192.168.8.80/mark.shtml
-		const headers = {}
-		const options = {
-			https: {
-				rejectUnauthorized: true,
-			},
-			headers,
-		}
 		try {
 			this.log('info', 'Refresh Matrix Labels')
-			await got.get(url, options).then((res) => {
-				const data: any = res.body
+			const data = await httpGetText(url)
 
-				// eslint-disable-next-line
-				let mark = ''
-				eval(data)
-				this.ExistingLabels = mark.replace(/%20/g, ' ').split(';')
+			// eslint-disable-next-line
+			let mark = ''
+			eval(data)
+			this.ExistingLabels = mark.replace(/%20/g, ' ').split(';')
 
-				updateVariables(this)
-			})
+			updateVariables(this)
 		} catch (error: any) {
 			this.log('error', `getMatrixLabel: error - Err parsing data ${error}`)
 			return
@@ -93,62 +113,56 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 	public async refreshMatrixRoutes() {
 		const url = `http://${this.config.host}/sysctl.shtml`
 		//http://192.168.8.80/sysctl.shtml
-		const headers = {}
-		const options = {
-			https: {
-				rejectUnauthorized: true,
-			},
-			headers,
-		}
 		// labels: http://192.168.8.80/mark.shtml
 		try {
 			this.log('info', 'Refreshing Matrix Routes')
 
-			await got.get(url, options).then((res) => {
-				const data: any = res.body
+			const data = await httpGetText(url)
 
-				// eslint-disable-next-line
-				let map = [1, 2, 3, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]
-				// eslint-disable-next-line
-				let edid = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				// eslint-disable-next-line
-				let hpdi = 0
-				// eslint-disable-next-line
-				let hpdo = 0
+			// sysctl.shtml is a script that assigns map, edid, hpdi and hpdo. All four must be declared here,
+			// or eval() throws a ReferenceError in strict mode, even though only map is read afterwards.
+			/* eslint-disable prefer-const, @typescript-eslint/no-unused-vars */
+			let map = [1, 2, 3, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]
+			// @ts-expect-error TS6133: only assigned by eval(data)
+			let edid = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+			// @ts-expect-error TS6133: only assigned by eval(data)
+			let hpdi = 0
+			// @ts-expect-error TS6133: only assigned by eval(data)
+			let hpdo = 0
+			/* eslint-enable prefer-const, @typescript-eslint/no-unused-vars */
 
-				eval(data)
+			eval(data)
 
-				this.ExistingInputOutput = {}
-				this.ExistingSelectedOutputs = []
-				for (let index = 1; index <= this.model.inputCount; index++) {
-					this.ExistingInputOutput[index] = {
-						input: index.toString(),
-						output: [],
-					}
+			this.ExistingInputOutput = {}
+			this.ExistingSelectedOutputs = []
+			for (let index = 1; index <= this.model.inputCount; index++) {
+				this.ExistingInputOutput[index] = {
+					input: index.toString(),
+					output: [],
 				}
+			}
 
-				for (let index = 0; index < map.length; index++) {
-					const outputNumber: string = (index + 1).toString()
-					const inputNumber: string = (map[index] + 1).toString() // This is the value of the input that the output is going to
-					if (map[index] !== 255) {
-						this.ExistingSelectedOutputs = arrayAddIfNotExist(this.ExistingSelectedOutputs, outputNumber)
+			for (let index = 0; index < map.length; index++) {
+				const outputNumber: string = (index + 1).toString()
+				const inputNumber: string = (map[index] + 1).toString() // This is the value of the input that the output is going to
+				if (map[index] !== 255) {
+					this.ExistingSelectedOutputs = arrayAddIfNotExist(this.ExistingSelectedOutputs, outputNumber)
 
-						if (Object.prototype.hasOwnProperty.call(this.ExistingInputOutput, inputNumber) === false) {
-							this.ExistingInputOutput[inputNumber + 1] = {
-								input: inputNumber,
-								output: [],
-							}
-						} else if (Object.prototype.hasOwnProperty.call(this.ExistingInputOutput, inputNumber)) {
-							this.ExistingInputOutput[inputNumber].output = arrayAddRemove(
-								this.ExistingInputOutput[inputNumber].output,
-								outputNumber,
-							)
+					if (Object.prototype.hasOwnProperty.call(this.ExistingInputOutput, inputNumber) === false) {
+						this.ExistingInputOutput[inputNumber + 1] = {
+							input: inputNumber,
+							output: [],
 						}
+					} else if (Object.prototype.hasOwnProperty.call(this.ExistingInputOutput, inputNumber)) {
+						this.ExistingInputOutput[inputNumber].output = arrayAddRemove(
+							this.ExistingInputOutput[inputNumber].output,
+							outputNumber,
+						)
 					}
 				}
+			}
 
-				this.checkFeedbacks(FeedbackId.input, FeedbackId.output)
-			})
+			this.checkFeedbacks(FeedbackId.input, FeedbackId.output)
 		} catch (error: any) {
 			this.log('error', `Refresh Matrix Routes: error - Err parsing data ${error}`)
 			return
