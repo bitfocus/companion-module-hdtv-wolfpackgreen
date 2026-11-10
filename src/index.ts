@@ -7,14 +7,52 @@ import {
 } from '@companion-module/base'
 import { GetConfigFields, HdtvMatrixConfig } from './config.js'
 import { GetActions } from './actions.js'
-import { arrayAddIfNotExist, arrayAddRemove, InputOutputDataInterface } from './utils.js'
+import {
+	arrayAddIfNotExist,
+	arrayAddRemove,
+	InputOutputDataInterface,
+	parseLabelsPage,
+	parseRoutesPage,
+} from './utils.js'
 import { FeedbackId, GetFeedbacks } from './feedback.js'
 import { GetPresetList } from './presets.js'
-import { got } from 'got-cjs'
 import { clearIntervalAsync, setIntervalAsync } from 'set-interval-async'
 import { initVariablesDefinitions, updateVariables } from './variables.js'
 import { MODEL_AUTO_DETECT, ModelSpec } from './models/types.js'
 import { GetAutoDetectModel, GetModelSpec } from './models/index.js'
+
+const HTTP_TIMEOUT_MS = 30000
+const HTTP_RETRY_LIMIT = 2
+const HTTP_RETRY_DELAY_MS = 1000
+
+/**
+ * @description GET a page from the matrix web interface and return the body as text.
+ * Network errors, timeouts and 5xx responses are retried, other HTTP errors are thrown immediately.
+ * @param url
+ * @param signal aborts the request and any remaining retries
+ */
+async function httpGetText(url: string, signal: AbortSignal): Promise<string> {
+	let lastError: unknown
+	for (let attempt = 0; attempt <= HTTP_RETRY_LIMIT; attempt++) {
+		if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, HTTP_RETRY_DELAY_MS))
+		signal.throwIfAborted()
+
+		let res: Response
+		try {
+			res = await fetch(url, { signal: AbortSignal.any([signal, AbortSignal.timeout(HTTP_TIMEOUT_MS)]) })
+		} catch (error) {
+			signal.throwIfAborted()
+			lastError = error
+			continue
+		}
+
+		if (res.ok) return await res.text()
+
+		lastError = new Error(`HTTP ${res.status} ${res.statusText}`)
+		if (res.status < 500) break
+	}
+	throw lastError
+}
 
 /**
  * @description Companion instance class for Zoom
@@ -33,6 +71,8 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 	public ExistingRecallSaveLabels: string[] = []
 	public socket: TCPHelper | null = null
 	private refreshMatrixSelectionsCounter = 0
+	/** Aborted on config change and destroy, so requests to the previous host stop */
+	private refreshAbort = new AbortController()
 
 	public config: HdtvMatrixConfig = {
 		host: '',
@@ -65,26 +105,16 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 	public async refreshMatrixLabels() {
 		const url = `http://${this.config.host}/mark.shtml`
 		//http://192.168.8.80/mark.shtml
-		const headers = {}
-		const options = {
-			https: {
-				rejectUnauthorized: true,
-			},
-			headers,
-		}
+		const signal = this.refreshAbort.signal
 		try {
 			this.log('info', 'Refresh Matrix Labels')
-			await got.get(url, options).then((res) => {
-				const data: any = res.body
+			const data = await httpGetText(url, signal)
+			this.ExistingLabels = parseLabelsPage(data)
+			if (this.ExistingLabels.length === 0) this.log('debug', 'No labels in mark.shtml, using the default labels')
 
-				// eslint-disable-next-line
-				let mark = ''
-				eval(data)
-				this.ExistingLabels = mark.replace(/%20/g, ' ').split(';')
-
-				updateVariables(this)
-			})
+			updateVariables(this)
 		} catch (error: any) {
+			if (signal.aborted) return
 			this.log('error', `getMatrixLabel: error - Err parsing data ${error}`)
 			return
 		}
@@ -93,63 +123,47 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 	public async refreshMatrixRoutes() {
 		const url = `http://${this.config.host}/sysctl.shtml`
 		//http://192.168.8.80/sysctl.shtml
-		const headers = {}
-		const options = {
-			https: {
-				rejectUnauthorized: true,
-			},
-			headers,
-		}
 		// labels: http://192.168.8.80/mark.shtml
+		const signal = this.refreshAbort.signal
 		try {
 			this.log('info', 'Refreshing Matrix Routes')
 
-			await got.get(url, options).then((res) => {
-				const data: any = res.body
+			const data = await httpGetText(url, signal)
+			const map = parseRoutesPage(data)
+			if (map.length === 0) this.log('debug', 'No routes in sysctl.shtml')
 
-				// eslint-disable-next-line
-				let map = [1, 2, 3, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]
-				// eslint-disable-next-line
-				let edid = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				// eslint-disable-next-line
-				let hpdi = 0
-				// eslint-disable-next-line
-				let hpdo = 0
-
-				eval(data)
-
-				this.ExistingInputOutput = {}
-				this.ExistingSelectedOutputs = []
-				for (let index = 1; index <= this.model.inputCount; index++) {
-					this.ExistingInputOutput[index] = {
-						input: index.toString(),
-						output: [],
-					}
+			this.ExistingInputOutput = {}
+			this.ExistingSelectedOutputs = []
+			for (let index = 1; index <= this.model.inputCount; index++) {
+				this.ExistingInputOutput[index] = {
+					input: index.toString(),
+					output: [],
 				}
+			}
 
-				for (let index = 0; index < map.length; index++) {
-					const outputNumber: string = (index + 1).toString()
-					const inputNumber: string = (map[index] + 1).toString() // This is the value of the input that the output is going to
-					if (map[index] !== 255) {
-						this.ExistingSelectedOutputs = arrayAddIfNotExist(this.ExistingSelectedOutputs, outputNumber)
+			for (let index = 0; index < map.length; index++) {
+				const outputNumber: string = (index + 1).toString()
+				const inputNumber: string = (map[index] + 1).toString() // This is the value of the input that the output is going to
+				if (map[index] !== 255) {
+					this.ExistingSelectedOutputs = arrayAddIfNotExist(this.ExistingSelectedOutputs, outputNumber)
 
-						if (Object.prototype.hasOwnProperty.call(this.ExistingInputOutput, inputNumber) === false) {
-							this.ExistingInputOutput[inputNumber + 1] = {
-								input: inputNumber,
-								output: [],
-							}
-						} else if (Object.prototype.hasOwnProperty.call(this.ExistingInputOutput, inputNumber)) {
-							this.ExistingInputOutput[inputNumber].output = arrayAddRemove(
-								this.ExistingInputOutput[inputNumber].output,
-								outputNumber,
-							)
+					if (Object.prototype.hasOwnProperty.call(this.ExistingInputOutput, inputNumber) === false) {
+						this.ExistingInputOutput[inputNumber + 1] = {
+							input: inputNumber,
+							output: [],
 						}
+					} else if (Object.prototype.hasOwnProperty.call(this.ExistingInputOutput, inputNumber)) {
+						this.ExistingInputOutput[inputNumber].output = arrayAddRemove(
+							this.ExistingInputOutput[inputNumber].output,
+							outputNumber,
+						)
 					}
 				}
+			}
 
-				this.checkFeedbacks(FeedbackId.input, FeedbackId.output)
-			})
+			this.checkFeedbacks(FeedbackId.input, FeedbackId.output)
 		} catch (error: any) {
+			if (signal.aborted) return
 			this.log('error', `Refresh Matrix Routes: error - Err parsing data ${error}`)
 			return
 		}
@@ -194,21 +208,44 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 			await clearIntervalAsync(this.pingIntervalTimer)
 		}
 
+		this.refreshAbort.abort()
+		this.refreshAbort = new AbortController()
+
 		this.config = config
 		this.saveConfig(config)
 		this.init_tcp()
 		this.model = GetModelSpec(this.config.model || MODEL_AUTO_DETECT) || GetAutoDetectModel()
 		initVariablesDefinitions(this)
-		await this.refreshMatrixRoutes()
-		await this.refreshMatrixLabels()
-
-		this.setActionDefinitions(GetActions(this))
-		this.setPresetDefinitions(GetPresetList(this))
-		this.setFeedbackDefinitions(GetFeedbacks(this))
+		// Default labels until the matrix answers, so the dropdowns are filled in
+		updateVariables(this)
+		this.updateDefinitions()
 
 		this.log('info', 'config changed!')
 
+		// Don't wait for the matrix here, or an unreachable matrix holds up startup
+		if (this.config.host) {
+			this.refreshFromMatrix().catch((error) => this.log('error', `Refresh from matrix failed: ${error}`))
+		}
+
 		return Promise.resolve()
+	}
+
+	private updateDefinitions(): void {
+		this.setActionDefinitions(GetActions(this))
+		this.setPresetDefinitions(GetPresetList(this))
+		this.setFeedbackDefinitions(GetFeedbacks(this))
+	}
+
+	/**
+	 * @description load the routes and labels from the matrix, then update the definitions so the dropdowns show the labels
+	 */
+	private async refreshFromMatrix(): Promise<void> {
+		const signal = this.refreshAbort.signal
+		await this.refreshMatrixRoutes()
+		if (signal.aborted) return
+		await this.refreshMatrixLabels()
+		if (signal.aborted) return
+		this.updateDefinitions()
 	}
 
 	init_tcp() {
@@ -248,6 +285,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 	 * @description close connections and stop timers/intervals
 	 */
 	async destroy() {
+		this.refreshAbort.abort()
 		this.InputOutput = {}
 		this.SelectedOutputs = []
 		this.LastInput = ''

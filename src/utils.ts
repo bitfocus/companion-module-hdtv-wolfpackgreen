@@ -115,3 +115,32 @@ export interface InstanceBaseExt<TConfig> extends InstanceBase<TConfig> {
 	refreshMatrixRoutesXTimes(numberOfTimes: number): Promise<void>
 	clearSelections(): Promise<void>
 }
+
+/**
+ * @description read the labels from mark.shtml, which looks like `mark='In%201;In%202;;Out%201;...';`
+ * @param page the body of mark.shtml
+ * @returns the labels in input, output, then layout order ('' when a label is not set), or [] when the page has no labels
+ */
+export function parseLabelsPage(page: string): string[] {
+	const match = /\bmark\s*=\s*(['"])(.*?)\1/s.exec(page)
+	if (!match) return []
+	return match[2].replace(/%20/g, ' ').split(';')
+}
+
+/**
+ * @description read the routes from sysctl.shtml, which looks like `map=[12,255,...];edid=[...];hpdi=...;hpdo=...;`
+ * @param page the body of sysctl.shtml
+ * @returns for each output, the zero-based input routed to it, or 255 when nothing is routed, or [] when the page has no routes.
+ * A value that isn't a number from 0 to 255 counts as nothing routed.
+ */
+export function parseRoutesPage(page: string): number[] {
+	const match = /\bmap\s*=\s*\[([^\]]*)\]/.exec(page)
+	if (!match) return []
+	const values = match[1].split(',').map((value) => value.trim())
+	// A trailing comma doesn't add an entry, same as in JavaScript
+	if (values[values.length - 1] === '') values.pop()
+	return values.map((value) => {
+		const input = Number(value)
+		return value !== '' && Number.isInteger(input) && input >= 0 && input <= 255 ? input : 255
+	})
+}
