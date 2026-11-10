@@ -110,6 +110,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 			this.log('info', 'Refresh Matrix Labels')
 			const data = await httpGetText(url, signal)
 			this.ExistingLabels = parseLabelsPage(data)
+			if (this.ExistingLabels.length === 0) this.log('debug', 'No labels in mark.shtml, using the default labels')
 
 			updateVariables(this)
 		} catch (error: any) {
@@ -129,6 +130,7 @@ class HdtvMatrixInstance extends InstanceBase<HdtvMatrixConfig> {
 
 			const data = await httpGetText(url, signal)
 			const map = parseRoutesPage(data)
+			if (map.length === 0) this.log('debug', 'No routes in sysctl.shtml')
 
 			this.ExistingInputOutput = {}
 			this.ExistingSelectedOutputs = []
